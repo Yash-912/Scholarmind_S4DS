@@ -1,0 +1,139 @@
+"""
+ScholarMind — Research Paper Discovery & Synthesis Engine
+
+Main FastAPI application entry point.
+"""
+
+from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
+from contextlib import asynccontextmanager
+import time
+import os
+
+from app.config import settings
+from app.db.database import init_database
+from app.core.embeddings import embedding_service
+from app.core.vector_store import vector_store
+from app.llmops.gateway import llm_gateway
+from app.llmops.prompt_registry import prompt_registry
+from app.ingestion.scheduler import start_scheduler, stop_scheduler
+from app.mlops.registry import model_registry
+from app.aiops.health_monitor import health_monitor
+
+# Import route modules
+from app.api.routes import papers, synthesis, search, topics, feed, ingestion, mlops, aiops
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Application startup and shutdown lifecycle."""
+    print(f"\n{'='*60}")
+    print(f"🚀 ScholarMind v{settings.APP_VERSION} Starting...")
+    print(f"{'='*60}\n")
+
+    # 1. Initialize database
+    await init_database()
+
+    # 2. Create data directories
+    os.makedirs("data/chroma", exist_ok=True)
+    os.makedirs("data/mlflow", exist_ok=True)
+    os.makedirs("data/cache", exist_ok=True)
+
+    # 3. Initialize vector store
+    vector_store.initialize()
+
+    # 4. Initialize LLM gateway
+    llm_gateway.initialize()
+
+    # 5. Load prompt templates
+    prompt_registry.load()
+
+    # 6. Initialize MLflow
+    model_registry.initialize()
+
+    # 7. Load embedding model (lazy — loads on first use)
+    print("📝 Embedding model will load on first use (lazy initialization)")
+
+    # 8. Start ingestion scheduler
+    start_scheduler()
+
+    print(f"\n{'='*60}")
+    print(f"✅ ScholarMind Ready — http://0.0.0.0:7860")
+    print(f"📚 API Docs — http://0.0.0.0:7860/docs")
+    print(f"{'='*60}\n")
+
+    yield
+
+    # Shutdown
+    print("\n🛑 ScholarMind shutting down...")
+    stop_scheduler()
+
+
+# Create FastAPI app
+app = FastAPI(
+    title="ScholarMind",
+    description="Research Paper Discovery & Synthesis Engine — MLOps + LLMOps + AIOps",
+    version=settings.APP_VERSION,
+    lifespan=lifespan,
+)
+
+# CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=settings.cors_origins_list,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
+# Latency tracking middleware
+@app.middleware("http")
+async def track_latency(request: Request, call_next):
+    start = time.time()
+    response = await call_next(request)
+    elapsed = (time.time() - start) * 1000
+    health_monitor.record_latency(request.url.path, elapsed)
+    response.headers["X-Response-Time"] = f"{elapsed:.0f}ms"
+    return response
+
+
+# Register route modules
+app.include_router(papers.router, prefix="/api")
+app.include_router(synthesis.router, prefix="/api")
+app.include_router(search.router, prefix="/api")
+app.include_router(topics.router, prefix="/api")
+app.include_router(feed.router, prefix="/api")
+app.include_router(ingestion.router, prefix="/api")
+app.include_router(mlops.router, prefix="/api")
+app.include_router(aiops.router, prefix="/api")
+
+
+@app.get("/")
+async def root():
+    """Root endpoint with API info."""
+    return {
+        "name": "ScholarMind",
+        "version": settings.APP_VERSION,
+        "description": "Research Paper Discovery & Synthesis Engine",
+        "docs": "/docs",
+        "endpoints": {
+            "papers": "/api/papers",
+            "search": "/api/search",
+            "synthesis": "/api/synthesis",
+            "topics": "/api/topics",
+            "feed": "/api/feed",
+            "ingestion": "/api/ingestion",
+            "mlops": "/api/mlops",
+            "aiops": "/api/aiops",
+        },
+    }
+
+
+@app.get("/api/health")
+async def health():
+    """Quick health check."""
+    return {
+        "status": "healthy",
+        "version": settings.APP_VERSION,
+    }

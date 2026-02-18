@@ -1,0 +1,58 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# Environment variables
+.env
+keys.txt
+
+# Data & artifacts (generated at runtime)
+backend/data/
+backend/app/llmops/prompts/__pycache__/
+*.db
+
+# MLflow
+mlruns/
+mlflow/
+
+# ChromaDB
+chroma/
+
+# BERTopic models
+*.joblib
+*.pkl
+
+# Node
+node_modules/
+.next/
+out/
+frontend/.next/
+frontend/node_modules/
+frontend/out/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Misc
+*.resolved
