@@ -1,0 +1,189 @@
+[
+    {
+        "query": "What are the latest advances in federated learning for healthcare?",
+        "query_type": "synthesis",
+        "expected_topics": [
+            "federated learning",
+            "healthcare",
+            "privacy"
+        ]
+    },
+    {
+        "query": "Compare transformer and LSTM architectures for NLP tasks",
+        "query_type": "comparison",
+        "expected_topics": [
+            "transformer",
+            "LSTM",
+            "NLP"
+        ]
+    },
+    {
+        "query": "What research gaps exist in AI safety and alignment?",
+        "query_type": "gap_analysis",
+        "expected_topics": [
+            "AI safety",
+            "alignment",
+            "interpretability"
+        ]
+    },
+    {
+        "query": "Explain the attention mechanism in transformers",
+        "query_type": "synthesis",
+        "expected_topics": [
+            "attention",
+            "transformer",
+            "self-attention"
+        ]
+    },
+    {
+        "query": "How has reinforcement learning evolved since 2020?",
+        "query_type": "synthesis",
+        "expected_topics": [
+            "reinforcement learning",
+            "deep RL",
+            "policy gradient"
+        ]
+    },
+    {
+        "query": "Compare graph neural networks vs traditional ML for drug discovery",
+        "query_type": "comparison",
+        "expected_topics": [
+            "GNN",
+            "drug discovery",
+            "molecular"
+        ]
+    },
+    {
+        "query": "What are the challenges of deploying LLMs in production?",
+        "query_type": "synthesis",
+        "expected_topics": [
+            "LLM",
+            "deployment",
+            "inference",
+            "cost"
+        ]
+    },
+    {
+        "query": "Summarize advances in vision transformers for medical imaging",
+        "query_type": "synthesis",
+        "expected_topics": [
+            "ViT",
+            "medical imaging",
+            "classification"
+        ]
+    },
+    {
+        "query": "What gaps exist in multimodal learning research?",
+        "query_type": "gap_analysis",
+        "expected_topics": [
+            "multimodal",
+            "vision-language",
+            "fusion"
+        ]
+    },
+    {
+        "query": "How do contrastive learning methods compare for self-supervised learning?",
+        "query_type": "comparison",
+        "expected_topics": [
+            "contrastive learning",
+            "self-supervised",
+            "SimCLR",
+            "BYOL"
+        ]
+    },
+    {
+        "query": "What are the ethical implications of generative AI?",
+        "query_type": "synthesis",
+        "expected_topics": [
+            "generative AI",
+            "ethics",
+            "bias",
+            "deepfake"
+        ]
+    },
+    {
+        "query": "Explain knowledge distillation techniques for model compression",
+        "query_type": "synthesis",
+        "expected_topics": [
+            "distillation",
+            "compression",
+            "teacher-student"
+        ]
+    },
+    {
+        "query": "Compare RAG vs fine-tuning for domain adaptation of LLMs",
+        "query_type": "comparison",
+        "expected_topics": [
+            "RAG",
+            "fine-tuning",
+            "domain adaptation"
+        ]
+    },
+    {
+        "query": "What are open problems in continual learning?",
+        "query_type": "gap_analysis",
+        "expected_topics": [
+            "continual learning",
+            "catastrophic forgetting",
+            "lifelong"
+        ]
+    },
+    {
+        "query": "Summarize recent work on efficient transformers",
+        "query_type": "synthesis",
+        "expected_topics": [
+            "efficient transformers",
+            "linear attention",
+            "sparse attention"
+        ]
+    },
+    {
+        "query": "How do different tokenization strategies affect LLM performance?",
+        "query_type": "comparison",
+        "expected_topics": [
+            "tokenization",
+            "BPE",
+            "WordPiece",
+            "SentencePiece"
+        ]
+    },
+    {
+        "query": "What are the latest approaches to AI explainability?",
+        "query_type": "synthesis",
+        "expected_topics": [
+            "explainability",
+            "SHAP",
+            "LIME",
+            "interpretability"
+        ]
+    },
+    {
+        "query": "Compare prompt engineering vs few-shot learning for task adaptation",
+        "query_type": "comparison",
+        "expected_topics": [
+            "prompting",
+            "few-shot",
+            "in-context learning"
+        ]
+    },
+    {
+        "query": "What research gaps exist in adversarial robustness?",
+        "query_type": "gap_analysis",
+        "expected_topics": [
+            "adversarial",
+            "robustness",
+            "attack",
+            "defense"
+        ]
+    },
+    {
+        "query": "How do large language models handle long-context inputs?",
+        "query_type": "synthesis",
+        "expected_topics": [
+            "long context",
+            "RoPE",
+            "ALiBi",
+            "context window"
+        ]
+    }
+]

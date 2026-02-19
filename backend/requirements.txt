@@ -8,16 +8,20 @@ httpx>=0.28.0
 # === Database ===
 sqlalchemy>=2.0.36
 aiosqlite>=0.20.0
+asyncpg>=0.30.0
 
 # === Vector Store ===
 chromadb>=0.5.0,<0.6.0
 
-# === Embeddings & ML ===
-sentence-transformers>=3.0.0
-torch>=2.0.0
-transformers>=4.40.0
+# === Embeddings (PyTorch-free ONNX) ===
+onnxruntime>=1.17.0
+tokenizers>=0.21.0
+huggingface-hub>=0.27.0
 numpy>=1.26.0,<2
+
+# === ML / Reranker ===
 scikit-learn>=1.5.0
+sentence-transformers>=3.0.0
 
 # === Topic Modeling ===
 bertopic>=0.16.0
@@ -29,10 +33,12 @@ rank-bm25>=0.2.2
 
 # === LLM Providers ===
 groq>=0.15.0
-huggingface-hub>=0.27.0
 
 # === LLMOps ===
 jinja2>=3.1.0
+
+# === Redis Cache (Cloud) ===
+redis>=5.0.0
 
 # === MLOps ===
 mlflow>=2.19.0

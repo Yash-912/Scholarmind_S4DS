@@ -1,0 +1,102 @@
+[
+    {
+        "title": "A Novel Framework for Cross-Modal Protein-Drug Interaction Prediction Using Geometric Deep Learning",
+        "expected_novel": true,
+        "reason": "Combines GDL with protein-drug interaction in a new way"
+    },
+    {
+        "title": "Federated Learning Meets Differential Privacy in Edge-Based Autonomous Vehicle Networks",
+        "expected_novel": true,
+        "reason": "Cross-domain: FL + DP + autonomous vehicles + edge computing"
+    },
+    {
+        "title": "Quantum-Inspired Tensor Networks for Natural Language Understanding",
+        "expected_novel": true,
+        "reason": "Novel combination of quantum computing and NLP"
+    },
+    {
+        "title": "Attention Is All You Need",
+        "expected_novel": false,
+        "reason": "Foundational well-known paper"
+    },
+    {
+        "title": "BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding",
+        "expected_novel": false,
+        "reason": "Established, widely cited"
+    },
+    {
+        "title": "Self-Supervised Anomaly Detection in Industrial IoT Using Hyperbolic Embeddings",
+        "expected_novel": true,
+        "reason": "Novel: hyperbolic spaces for IoT anomaly detection"
+    },
+    {
+        "title": "Deep Residual Learning for Image Recognition",
+        "expected_novel": false,
+        "reason": "Classic paper"
+    },
+    {
+        "title": "Causal Discovery in Time-Series EHR Data Using Neural Granger Causality",
+        "expected_novel": true,
+        "reason": "Combines causal inference with EHR and neural methods"
+    },
+    {
+        "title": "Graph Neural Networks for Climate Change Impact Prediction on Agricultural Supply Chains",
+        "expected_novel": true,
+        "reason": "Cross-domain: GNN + climate + agriculture"
+    },
+    {
+        "title": "ImageNet Large Scale Visual Recognition Challenge",
+        "expected_novel": false,
+        "reason": "Classic benchmark paper"
+    },
+    {
+        "title": "Neuro-Symbolic Reasoning for Automated Theorem Proving with LLMs",
+        "expected_novel": true,
+        "reason": "Novel fusion of neuro-symbolic AI and LLMs for math"
+    },
+    {
+        "title": "Dropout: A Simple Way to Prevent Neural Networks from Overfitting",
+        "expected_novel": false,
+        "reason": "Classic regularization paper"
+    },
+    {
+        "title": "Multi-Agent Reinforcement Learning for Decentralized Drone Swarm Coordination",
+        "expected_novel": true,
+        "reason": "Novel application of MARL to drone swarms"
+    },
+    {
+        "title": "Diffusion Models Meet Protein Folding: Generating De Novo Protein Structures",
+        "expected_novel": true,
+        "reason": "Novel combination of diffusion models and protein design"
+    },
+    {
+        "title": "Generative Adversarial Networks",
+        "expected_novel": false,
+        "reason": "Original GAN paper"
+    },
+    {
+        "title": "Topological Data Analysis for Detecting Subtle Patterns in Genomic Sequences",
+        "expected_novel": true,
+        "reason": "Novel: TDA applied to genomics"
+    },
+    {
+        "title": "Batch Normalization: Accelerating Deep Network Training",
+        "expected_novel": false,
+        "reason": "Classic technique paper"
+    },
+    {
+        "title": "Continual Learning with Dynamic Memory Consolidation for Autonomous Surgical Robots",
+        "expected_novel": true,
+        "reason": "Novel application at intersection of multiple fields"
+    },
+    {
+        "title": "Language Model Compression via Structured Pruning with Knowledge Distillation on Edge Devices",
+        "expected_novel": true,
+        "reason": "Novel combination for edge deployment"
+    },
+    {
+        "title": "Adam: A Method for Stochastic Optimization",
+        "expected_novel": false,
+        "reason": "Classic optimizer paper"
+    }
+]

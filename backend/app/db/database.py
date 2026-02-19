@@ -1,6 +1,6 @@
 """
 Database connection and session management.
-Uses async SQLite via aiosqlite + SQLAlchemy async.
+Supports both local SQLite (dev) and Neon PostgreSQL (production).
 """
 
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
@@ -9,15 +9,29 @@ from app.config import settings
 import os
 
 
-# Ensure data directory exists
-os.makedirs(os.path.dirname(settings.SQLITE_URL.replace("sqlite+aiosqlite:///", "")), exist_ok=True)
+# Determine which database to use
+db_url = settings.db_url
+is_postgres = "postgresql" in db_url or "postgres" in db_url
+
+if not is_postgres:
+    # Ensure data directory exists for SQLite
+    db_path = db_url.replace("sqlite+aiosqlite:///", "")
+    os.makedirs(os.path.dirname(db_path) or ".", exist_ok=True)
 
 # Create async engine
-engine = create_async_engine(
-    settings.SQLITE_URL,
-    echo=settings.DEBUG,
-    connect_args={"check_same_thread": False},
-)
+engine_kwargs = {
+    "echo": settings.DEBUG,
+}
+
+if not is_postgres:
+    engine_kwargs["connect_args"] = {"check_same_thread": False}
+else:
+    # PostgreSQL connection pool settings for production
+    engine_kwargs["pool_size"] = 5
+    engine_kwargs["max_overflow"] = 10
+    engine_kwargs["pool_pre_ping"] = True  # Test connections before use
+
+engine = create_async_engine(db_url, **engine_kwargs)
 
 # Session factory
 async_session = async_sessionmaker(
@@ -49,4 +63,5 @@ async def init_database():
     """Create all tables."""
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
-    print("✅ Database tables created")
+    db_type = "PostgreSQL (Neon)" if is_postgres else "SQLite"
+    print(f"✅ Database tables created ({db_type})")

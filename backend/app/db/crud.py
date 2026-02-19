@@ -3,7 +3,7 @@ Database CRUD operations for all models.
 """
 
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func, desc, and_
+from sqlalchemy import select, func, desc, and_, Integer
 from sqlalchemy.orm import selectinload
 from app.db.models import (
     Paper, Topic, User, Bookmark, QueryLog, Alert,

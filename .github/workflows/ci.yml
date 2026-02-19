@@ -1,0 +1,175 @@
+name: CI Pipeline — Lint, Test & Validate
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+env:
+  PYTHON_VERSION: "3.12"
+  NODE_VERSION: "20"
+
+jobs:
+  # ═══════════════════════════════════════════
+  # BACKEND — Python Lint, Type Check, Test
+  # ═══════════════════════════════════════════
+  backend-lint:
+    name: 🐍 Backend Lint & Format
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install linters
+        run: pip install ruff
+
+      - name: Run Ruff linter
+        working-directory: backend
+        run: ruff check . --output-format=github
+
+      - name: Run Ruff formatter check
+        working-directory: backend
+        run: ruff format --check .
+
+  backend-test:
+    name: 🧪 Backend Tests
+    runs-on: ubuntu-latest
+    needs: backend-lint
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: "pip"
+          cache-dependency-path: backend/requirements.txt
+
+      - name: Install dependencies
+        working-directory: backend
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest pytest-asyncio httpx ruff
+
+      - name: Run tests
+        working-directory: backend
+        env:
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          SQLITE_URL: "sqlite+aiosqlite:///./data/test.db"
+        run: |
+          mkdir -p data
+          pytest tests/ -v --tb=short -x
+
+  # ═══════════════════════════════════════════
+  # FRONTEND — Lint, Type Check, Build
+  # ═══════════════════════════════════════════
+  frontend-lint:
+    name: ⚛️ Frontend Lint & Type Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Type check
+        working-directory: frontend
+        run: npx tsc --noEmit
+
+      - name: Lint
+        working-directory: frontend
+        run: npx next lint
+
+  frontend-build:
+    name: 🏗️ Frontend Build
+    runs-on: ubuntu-latest
+    needs: frontend-lint
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install and build
+        working-directory: frontend
+        env:
+          NEXT_PUBLIC_API_URL: "https://placeholder.hf.space"
+        run: |
+          npm ci
+          npm run build
+
+  # ═══════════════════════════════════════════
+  # DOCKER — Validate Backend Container Builds
+  # ═══════════════════════════════════════════
+  docker-build:
+    name: 🐳 Docker Build Check
+    runs-on: ubuntu-latest
+    needs: backend-lint
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build Docker image
+        working-directory: backend
+        run: docker build -t scholarmind-backend:ci .
+
+      - name: Verify container starts
+        run: |
+          docker run -d --name sm-test \
+            -e GROQ_API_KEY=test \
+            -e HF_TOKEN=test \
+            -p 7860:7860 \
+            scholarmind-backend:ci \
+            uvicorn app.main:app --host 0.0.0.0 --port 7860
+
+          # Wait for startup
+          sleep 15
+
+          # Health check
+          curl -f http://localhost:7860/api/health || (docker logs sm-test && exit 1)
+
+          docker stop sm-test
+          docker rm sm-test
+
+  # ═══════════════════════════════════════════
+  # SECURITY — Dependency Audit
+  # ═══════════════════════════════════════════
+  security-scan:
+    name: 🔒 Security Scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Check Python dependencies
+        working-directory: backend
+        run: |
+          pip install pip-audit
+          pip-audit -r requirements.txt --ignore-vuln GHSA-0000-0000-0000 || true
+
+      - name: Check npm dependencies
+        working-directory: frontend
+        run: npm audit --audit-level=high || true

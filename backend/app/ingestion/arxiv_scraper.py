@@ -11,7 +11,7 @@ from typing import Optional
 from dataclasses import dataclass, field
 
 
-ARXIV_API_URL = "http://export.arxiv.org/api/query"
+ARXIV_API_URL = "https://export.arxiv.org/api/query"
 
 
 @dataclass
@@ -64,7 +64,7 @@ async def scrape_arxiv(
 
     print(f"📡 Fetching from arXiv: {categories}, max_results={max_results}")
 
-    async with httpx.AsyncClient(timeout=30.0) as client:
+    async with httpx.AsyncClient(timeout=30.0, follow_redirects=True) as client:
         response = await client.get(ARXIV_API_URL, params=params)
         response.raise_for_status()
 
@@ -148,7 +148,7 @@ async def scrape_arxiv_by_query(
         "sortOrder": "descending",
     }
 
-    async with httpx.AsyncClient(timeout=30.0) as client:
+    async with httpx.AsyncClient(timeout=30.0, follow_redirects=True) as client:
         response = await client.get(ARXIV_API_URL, params=params)
         response.raise_for_status()
 

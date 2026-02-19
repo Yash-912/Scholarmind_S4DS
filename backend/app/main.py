@@ -4,11 +4,22 @@ ScholarMind — Research Paper Discovery & Synthesis Engine
 Main FastAPI application entry point.
 """
 
+import os
+import sys
+
+# === Fix Windows DLL loading order (only needed on Windows with Anaconda + torch) ===
+if os.name == "nt":
+    torch_lib_path = os.path.join(
+        os.path.dirname(sys.executable), "Lib", "site-packages", "torch", "lib"
+    )
+    if os.path.isdir(torch_lib_path):
+        os.add_dll_directory(torch_lib_path)
+# === End DLL fix ===
+
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 import time
-import os
 
 from app.config import settings
 from app.db.database import init_database
@@ -21,7 +32,9 @@ from app.mlops.registry import model_registry
 from app.aiops.health_monitor import health_monitor
 
 # Import route modules
-from app.api.routes import papers, synthesis, search, topics, feed, ingestion, mlops, aiops
+from app.api.routes import papers, synthesis, search, topics, feed, ingestion, mlops, aiops, health, ops
+from app.mlops.experiment_tracker import experiment_tracker
+from app.aiops.alerts import alert_engine
 
 
 @asynccontextmanager
@@ -50,6 +63,12 @@ async def lifespan(app: FastAPI):
 
     # 6. Initialize MLflow
     model_registry.initialize()
+
+    # 6b. Initialize experiment tracker
+    experiment_tracker.initialize()
+
+    # 6c. Initialize alert rules
+    alert_engine.add_default_rules(health_monitor=health_monitor)
 
     # 7. Load embedding model (lazy — loads on first use)
     print("📝 Embedding model will load on first use (lazy initialization)")
@@ -107,6 +126,8 @@ app.include_router(feed.router, prefix="/api")
 app.include_router(ingestion.router, prefix="/api")
 app.include_router(mlops.router, prefix="/api")
 app.include_router(aiops.router, prefix="/api")
+app.include_router(health.router, prefix="/api")
+app.include_router(ops.router, prefix="/api")
 
 
 @app.get("/")
@@ -126,6 +147,8 @@ async def root():
             "ingestion": "/api/ingestion",
             "mlops": "/api/mlops",
             "aiops": "/api/aiops",
+            "health": "/api/health",
+            "ops": "/api/ops",
         },
     }
 

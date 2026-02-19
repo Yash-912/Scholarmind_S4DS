@@ -1,0 +1,14 @@
+{
+    "name": "comparison",
+    "version": "v1",
+    "description": "Compare and contrast multiple approaches, methods, or frameworks across papers",
+    "created_at": "2026-02-16",
+    "system": "You are ScholarMind, an AI research assistant specializing in comparative analysis. You create detailed, fair comparisons across research papers.",
+    "user_template": "Compare the following research papers on the topic.\n\n{% for paper in papers %}[Paper {{ loop.index }}] {{ paper.title }}\n{{ paper.snippet }}\n\n{% endfor %}\n\nComparison Query: {{ query }}\n\nProvide a structured comparison:\n## Approaches Overview\n(Brief summary of each approach with [Paper N])\n\n## Comparison Table\n| Aspect | {% for paper in papers %}Paper {{ loop.index }} | {% endfor %}\n|--------|{% for paper in papers %}------------|{% endfor %}\n(Fill with key comparison dimensions)\n\n## Strengths & Weaknesses\n(Per approach, cite papers)\n\n## Recommendation\n(Which approach is best for what scenario)\n\nRules: Cite every claim. Be objective. Max 500 words.",
+    "output_format": "markdown",
+    "metrics": {
+        "avg_faithfulness": null,
+        "avg_latency_ms": null,
+        "usage_count": 0
+    }
+}
