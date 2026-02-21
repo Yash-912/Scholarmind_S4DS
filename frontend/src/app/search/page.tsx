@@ -67,7 +67,7 @@ export default function SearchPage() {
                                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 8 }}>
                                     <h3 style={{ fontSize: 16, fontWeight: 600, flex: 1, marginRight: 12 }}>{paper.title}</h3>
                                     <span className="badge badge-primary" style={{ flexShrink: 0 }}>
-                                        {(paper.score * 100).toFixed(1)}%
+                                        Rel: {paper.score.toFixed(2)}
                                     </span>
                                 </div>
                                 <p style={{ fontSize: 13, color: "var(--text-secondary)", lineHeight: 1.6, marginBottom: 8 }}>
