@@ -1,17 +1,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { getPapers, triggerIngestion, getIngestionStatus } from "@/lib/api";
+import { getPapers, triggerIngestion } from "@/lib/api";
+import type { Paper } from "@/lib/types";
 
 export default function PapersPage() {
-    const [papers, setPapers] = useState<any>(null);
+    const [papers, setPapers] = useState<{ papers: Paper[]; total: number } | null>(null);
     const [loading, setLoading] = useState(true);
     const [ingesting, setIngesting] = useState(false);
     const [page, setPage] = useState(0);
-
-    useEffect(() => {
-        loadPapers();
-    }, [page]);
 
     const loadPapers = async () => {
         setLoading(true);
@@ -25,13 +22,19 @@ export default function PapersPage() {
         }
     };
 
+    useEffect(() => {
+        loadPapers();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [page]);
+
     const handleIngest = async () => {
         setIngesting(true);
         try {
             await triggerIngestion({ max_arxiv: 30, max_pubmed: 20 });
             alert("Ingestion started in background! Papers will appear in ~2 minutes.");
-        } catch (err: any) {
-            alert("Ingestion failed: " + err.message);
+        } catch (err: unknown) {
+            const message = err instanceof Error ? err.message : String(err);
+            alert("Ingestion failed: " + message);
         } finally {
             setIngesting(false);
         }
@@ -62,16 +65,16 @@ export default function PapersPage() {
             ) : (
                 <>
                     <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                        {papers?.papers?.map((p: any) => (
+                        {papers?.papers?.map((p: Paper) => (
                             <div key={p.id} className="glass-card" style={{ padding: 20 }}>
                                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 8 }}>
                                     <h3 style={{ fontSize: 15, fontWeight: 600, flex: 1, marginRight: 12 }}>{p.title}</h3>
-                                    {p.novelty_score > 0 && (
+                                    {(p.novelty_score ?? 0) > 0 && (
                                         <span
-                                            className={`badge ${p.novelty_score > 0.7 ? "badge-danger" : p.novelty_score > 0.4 ? "badge-warning" : "badge-info"
+                                            className={`badge ${(p.novelty_score ?? 0) > 0.7 ? "badge-danger" : (p.novelty_score ?? 0) > 0.4 ? "badge-warning" : "badge-info"
                                                 }`}
                                         >
-                                            Novelty: {(p.novelty_score * 100).toFixed(0)}%
+                                            Novelty: {((p.novelty_score ?? 0) * 100).toFixed(0)}%
                                         </span>
                                     )}
                                 </div>
@@ -85,13 +88,13 @@ export default function PapersPage() {
                                             📅 {new Date(p.published_date).toLocaleDateString()}
                                         </span>
                                     )}
-                                    {p.citation_count > 0 && (
+                                    {(p.citation_count ?? 0) > 0 && (
                                         <span style={{ fontSize: 12, color: "var(--text-muted)" }}>
                                             📌 {p.citation_count} citations
                                         </span>
                                     )}
                                     <span style={{ fontSize: 12, color: "var(--text-muted)" }}>
-                                        ✍️ {p.authors?.slice(0, 3).join(", ")}{p.authors?.length > 3 ? "..." : ""}
+                                        ✍️ {p.authors?.slice(0, 3).join(", ")}{(p.authors?.length ?? 0) > 3 ? "..." : ""}
                                     </span>
                                 </div>
                             </div>

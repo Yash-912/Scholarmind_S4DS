@@ -2,10 +2,11 @@
 
 import { useState, useEffect } from "react";
 import { getTopics, getTrendingTopics } from "@/lib/api";
+import type { Topic } from "@/lib/types";
 
 export default function TopicsPage() {
-    const [topics, setTopics] = useState<any[]>([]);
-    const [trending, setTrending] = useState<any[]>([]);
+    const [topics, setTopics] = useState<Topic[]>([]);
+    const [trending, setTrending] = useState<Topic[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -49,7 +50,7 @@ export default function TopicsPage() {
                 <div style={{ marginBottom: 32 }}>
                     <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 16 }}>🔥 Trending</h2>
                     <div style={{ display: "flex", gap: 12, overflowX: "auto", paddingBottom: 8 }}>
-                        {trending.map((t: any) => (
+                        {trending.map((t: Topic) => (
                             <div
                                 key={t.id}
                                 className="glass-card"
@@ -83,7 +84,7 @@ export default function TopicsPage() {
                 </div>
             ) : topics.length > 0 ? (
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 16 }}>
-                    {topics.map((t: any) => (
+                    {topics.map((t: Topic) => (
                         <div key={t.id} className="glass-card">
                             <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
                                 <span style={{ fontWeight: 600, fontSize: 15 }}>{t.name}</span>

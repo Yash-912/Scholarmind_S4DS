@@ -72,8 +72,13 @@ export interface HallucinationResult {
   details: string;
 }
 
+export interface FeedPaper extends Paper {
+  relevance_score: number;
+  paper_id: string;
+}
+
 export interface FeedResponse {
-  feed: Paper[];
+  feed: FeedPaper[];
   interests: string[];
   bookmarks: number[];
 }

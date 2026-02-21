@@ -3,11 +3,12 @@
 import { useState, useEffect, useCallback } from "react";
 import { getDashboard, getQueryAnalytics, getModels } from "@/lib/api";
 import { THEME } from "@/lib/constants";
+import type { DashboardData } from "@/lib/types";
 
 export function useMetrics() {
-    const [dashboard, setDashboard] = useState<any>(null);
-    const [analytics, setAnalytics] = useState<any>(null);
-    const [models, setModels] = useState<any>(null);
+    const [dashboard, setDashboard] = useState<DashboardData | null>(null);
+    const [analytics, setAnalytics] = useState<Record<string, unknown> | null>(null);
+    const [models, setModels] = useState<Record<string, unknown> | null>(null);
     const [loading, setLoading] = useState(true);
 
     const load = useCallback(async () => {

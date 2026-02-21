@@ -3,7 +3,6 @@ Relevance Scoring — Personalized paper recommendations based on user interests
 """
 
 import numpy as np
-from typing import Optional
 from app.core.embeddings import embedding_service
 from app.core.vector_store import vector_store
 

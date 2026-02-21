@@ -2,9 +2,10 @@
 
 import { useState, useEffect } from "react";
 import { getFeed, updateInterests, addBookmark } from "@/lib/api";
+import type { FeedResponse, FeedPaper } from "@/lib/types";
 
 export default function FeedPage() {
-    const [feed, setFeed] = useState<any>(null);
+    const [feed, setFeed] = useState<FeedResponse | null>(null);
     const [loading, setLoading] = useState(true);
     const [interests, setInterests] = useState<string[]>([]);
     const [newInterest, setNewInterest] = useState("");
@@ -99,7 +100,7 @@ export default function FeedPage() {
                 </div>
             ) : (
                 <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                    {feed?.feed?.map((paper: any, i: number) => (
+                    {feed?.feed?.map((paper: FeedPaper, i: number) => (
                         <div key={i} className="glass-card" style={{ padding: 20 }}>
                             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
                                 <div style={{ flex: 1 }}>

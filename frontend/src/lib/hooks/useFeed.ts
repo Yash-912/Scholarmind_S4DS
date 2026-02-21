@@ -2,9 +2,10 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { getFeed, updateInterests, addBookmark } from "@/lib/api";
+import type { FeedResponse } from "@/lib/types";
 
 export function useFeed() {
-    const [feed, setFeed] = useState<any>(null);
+    const [feed, setFeed] = useState<FeedResponse | null>(null);
     const [loading, setLoading] = useState(true);
     const [interests, setInterests] = useState<string[]>([]);
 

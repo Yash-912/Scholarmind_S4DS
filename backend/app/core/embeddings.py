@@ -7,7 +7,6 @@ using only onnxruntime + tokenizers. No torch import anywhere.
 import numpy as np
 import time
 import os
-from pathlib import Path
 
 
 class EmbeddingService:

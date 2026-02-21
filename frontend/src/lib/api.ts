@@ -2,6 +2,16 @@
  * ScholarMind API Client — Typed client for all backend endpoints.
  */
 
+import type {
+    Paper,
+    SearchResponse,
+    SynthesisResponse,
+    Topic,
+    FeedResponse,
+    DashboardData,
+    ModelVersion,
+} from "./types";
+
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:7860";
 
 async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
@@ -28,24 +38,24 @@ export async function getPapers(params?: { skip?: number; limit?: number; source
     if (params?.skip) query.set("skip", String(params.skip));
     if (params?.limit) query.set("limit", String(params.limit));
     if (params?.source) query.set("source", params.source);
-    return apiFetch<any>(`/api/papers?${query}`);
+    return apiFetch<{ papers: Paper[]; total: number }>(`/api/papers?${query}`);
 }
 
 export async function searchPapersTitle(q: string, limit = 20) {
-    return apiFetch<any>(`/api/papers/search?q=${encodeURIComponent(q)}&limit=${limit}`);
+    return apiFetch<{ papers: Paper[] }>(`/api/papers/search?q=${encodeURIComponent(q)}&limit=${limit}`);
 }
 
 export async function getPaper(id: number) {
-    return apiFetch<any>(`/api/papers/${id}`);
+    return apiFetch<Paper>(`/api/papers/${id}`);
 }
 
 export async function getPaperNovelty(id: number) {
-    return apiFetch<any>(`/api/papers/${id}/novelty`);
+    return apiFetch<{ novelty_score: number; novelty_type: string; reasoning: string }>(`/api/papers/${id}/novelty`);
 }
 
 // === Search ===
 export async function semanticSearch(q: string, topK = 20, useReranker = true) {
-    return apiFetch<any>(`/api/search?q=${encodeURIComponent(q)}&top_k=${topK}&use_reranker=${useReranker}`);
+    return apiFetch<SearchResponse>(`/api/search?q=${encodeURIComponent(q)}&top_k=${topK}&use_reranker=${useReranker}`);
 }
 
 // === Synthesis ===
@@ -57,7 +67,7 @@ export async function synthesize(body: {
     use_cache?: boolean;
     check_hallucination?: boolean;
 }) {
-    return apiFetch<any>("/api/synthesis", {
+    return apiFetch<SynthesisResponse>("/api/synthesis", {
         method: "POST",
         body: JSON.stringify(body),
     });
@@ -73,100 +83,100 @@ export function synthesizeStream(body: { query: string }) {
 }
 
 export async function getPrompts() {
-    return apiFetch<any>("/api/synthesis/prompts");
+    return apiFetch<Record<string, unknown>>("/api/synthesis/prompts");
 }
 
 export async function getAvailableModels() {
-    return apiFetch<any>("/api/synthesis/models");
+    return apiFetch<Record<string, unknown>>("/api/synthesis/models");
 }
 
 export async function getCacheStats() {
-    return apiFetch<any>("/api/synthesis/cache/stats");
+    return apiFetch<Record<string, unknown>>("/api/synthesis/cache/stats");
 }
 
 // === Topics ===
 export async function getTopics(limit = 50) {
-    return apiFetch<any>(`/api/topics?limit=${limit}`);
+    return apiFetch<{ topics: Topic[] }>(`/api/topics?limit=${limit}`);
 }
 
 export async function getTrendingTopics(limit = 10) {
-    return apiFetch<any>(`/api/topics/trending?limit=${limit}`);
+    return apiFetch<{ trending: Topic[] }>(`/api/topics/trending?limit=${limit}`);
 }
 
 export async function getTopicPapers(topicId: number, limit = 20) {
-    return apiFetch<any>(`/api/topics/${topicId}/papers?limit=${limit}`);
+    return apiFetch<{ papers: Paper[] }>(`/api/topics/${topicId}/papers?limit=${limit}`);
 }
 
 // === Feed ===
 export async function getFeed() {
-    return apiFetch<any>("/api/feed");
+    return apiFetch<FeedResponse>("/api/feed");
 }
 
 export async function updateInterests(interests: string[]) {
-    return apiFetch<any>("/api/feed/interests", {
+    return apiFetch<Record<string, unknown>>("/api/feed/interests", {
         method: "POST",
         body: JSON.stringify({ interests }),
     });
 }
 
 export async function addBookmark(paperId: number) {
-    return apiFetch<any>(`/api/feed/bookmark/${paperId}`, { method: "POST" });
+    return apiFetch<Record<string, unknown>>(`/api/feed/bookmark/${paperId}`, { method: "POST" });
 }
 
 export async function removeBookmark(paperId: number) {
-    return apiFetch<any>(`/api/feed/bookmark/${paperId}`, { method: "DELETE" });
+    return apiFetch<Record<string, unknown>>(`/api/feed/bookmark/${paperId}`, { method: "DELETE" });
 }
 
 export async function getBookmarks() {
-    return apiFetch<any>("/api/feed/bookmarks");
+    return apiFetch<{ bookmarks: Paper[] }>("/api/feed/bookmarks");
 }
 
 // === Ingestion ===
 export async function triggerIngestion(body?: { sources?: string[]; max_arxiv?: number; max_pubmed?: number }) {
-    return apiFetch<any>("/api/ingestion/run", {
+    return apiFetch<Record<string, unknown>>("/api/ingestion/run", {
         method: "POST",
         body: JSON.stringify(body || {}),
     });
 }
 
 export async function getIngestionStatus() {
-    return apiFetch<any>("/api/ingestion/status");
+    return apiFetch<Record<string, unknown>>("/api/ingestion/status");
 }
 
 // === MLOps ===
 export async function getModels() {
-    return apiFetch<any>("/api/mlops/models");
+    return apiFetch<{ models: ModelVersion[] }>("/api/mlops/models");
 }
 
 export async function getDrift() {
-    return apiFetch<any>("/api/mlops/drift");
+    return apiFetch<Record<string, unknown>>("/api/mlops/drift");
 }
 
 export async function getQueryAnalytics() {
-    return apiFetch<any>("/api/mlops/query-analytics");
+    return apiFetch<{ cost_by_model?: { model: string; count: number; total_cost: number }[] }>("/api/mlops/query-analytics");
 }
 
 export async function getPromptAnalytics(promptName = "synthesis") {
-    return apiFetch<any>(`/api/mlops/prompt-analytics?prompt_name=${promptName}`);
+    return apiFetch<Record<string, unknown>>(`/api/mlops/prompt-analytics?prompt_name=${promptName}`);
 }
 
 // === AIOps ===
 export async function getDashboard() {
-    return apiFetch<any>("/api/aiops/dashboard");
+    return apiFetch<DashboardData>("/api/aiops/dashboard");
 }
 
 export async function getHealth() {
-    return apiFetch<any>("/api/aiops/health");
+    return apiFetch<Record<string, unknown>>("/api/aiops/health");
 }
 
 export async function getAlerts(limit = 20) {
-    return apiFetch<any>(`/api/aiops/alerts?limit=${limit}`);
+    return apiFetch<Record<string, unknown>>(`/api/aiops/alerts?limit=${limit}`);
 }
 
 export async function resolveAlert(alertId: number) {
-    return apiFetch<any>(`/api/aiops/alerts/${alertId}/resolve`, { method: "POST" });
+    return apiFetch<Record<string, unknown>>(`/api/aiops/alerts/${alertId}/resolve`, { method: "POST" });
 }
 
 export async function getLatencyStats() {
-    return apiFetch<any>("/api/aiops/latency");
+    return apiFetch<Record<string, unknown>>("/api/aiops/latency");
 }

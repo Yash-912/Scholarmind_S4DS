@@ -3,7 +3,6 @@ Cross-Encoder Re-ranker — Re-ranks retrieved results for higher precision.
 """
 
 import time
-from typing import Optional
 
 
 class Reranker:
@@ -24,7 +23,7 @@ class Reranker:
             from sentence_transformers import CrossEncoder
             self.model = CrossEncoder(self.model_name)
             self._loaded = True
-            print(f"✅ Re-ranker loaded")
+            print("✅ Re-ranker loaded")
         except Exception as e:
             print(f"⚠️ Re-ranker load failed: {e}")
             self._loaded = False

@@ -2,10 +2,11 @@
 
 import { useState } from "react";
 import { semanticSearch } from "@/lib/api";
+import type { SearchResponse, SearchResult } from "@/lib/types";
 
 export default function SearchPage() {
     const [query, setQuery] = useState("");
-    const [results, setResults] = useState<any>(null);
+    const [results, setResults] = useState<SearchResponse | null>(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
 
@@ -18,8 +19,8 @@ export default function SearchPage() {
         try {
             const data = await semanticSearch(query);
             setResults(data);
-        } catch (err: any) {
-            setError(err.message || "Search failed");
+        } catch (err: unknown) {
+            setError(err instanceof Error ? err.message : "Search failed");
         } finally {
             setLoading(false);
         }
@@ -62,7 +63,7 @@ export default function SearchPage() {
                     </div>
 
                     <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                        {results.results?.map((paper: any, i: number) => (
+                        {results.results?.map((paper: SearchResult, i: number) => (
                             <div key={i} className="glass-card" style={{ padding: 20 }}>
                                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 8 }}>
                                     <h3 style={{ fontSize: 16, fontWeight: 600, flex: 1, marginRight: 12 }}>{paper.title}</h3>

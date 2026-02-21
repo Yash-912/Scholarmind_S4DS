@@ -3,7 +3,6 @@ Novelty Detection — Identify genuinely novel papers using embedding distance.
 """
 
 import numpy as np
-from typing import Optional
 from app.core.vector_store import vector_store
 from app.core.embeddings import embedding_service
 
@@ -46,7 +45,7 @@ class NoveltyDetector:
         # Calculate novelty metrics
         avg_distance = np.mean(distances)
         min_distance = np.min(distances)
-        std_distance = np.std(distances)
+        _ = np.std(distances)  # reserved for future use
 
         # Novelty score: based on how far this paper is from its neighbors
         # Higher avg_distance = more novel (in cosine distance, 0=identical, 2=opposite)

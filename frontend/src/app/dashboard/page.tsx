@@ -2,11 +2,26 @@
 
 import { useState, useEffect } from "react";
 import { getDashboard, getQueryAnalytics, getModels, resolveAlert } from "@/lib/api";
+import type { DashboardData, Alert, ModelVersion, SystemMetrics, QueryStats, IngestionStats } from "@/lib/types";
+
+interface CostByModel {
+    model: string;
+    count: number;
+    total_cost: number;
+}
+
+interface AnalyticsData {
+    cost_by_model?: CostByModel[];
+}
+
+interface ModelsData {
+    models?: ModelVersion[];
+}
 
 export default function DashboardPage() {
-    const [dashboard, setDashboard] = useState<any>(null);
-    const [analytics, setAnalytics] = useState<any>(null);
-    const [models, setModels] = useState<any>(null);
+    const [dashboard, setDashboard] = useState<DashboardData | null>(null);
+    const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
+    const [models, setModels] = useState<ModelsData | null>(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -37,12 +52,12 @@ export default function DashboardPage() {
         loadData();
     };
 
-    const metrics = dashboard?.metrics || {};
-    const system = metrics.system || {};
-    const queryStats = dashboard?.query_stats || {};
-    const ingestionStats = dashboard?.ingestion_stats || {};
-    const cache = metrics.cache || {};
-    const cost = metrics.cost || {};
+    const metrics: Partial<SystemMetrics> = dashboard?.metrics ?? {};
+    const system: Partial<SystemMetrics["system"]> = metrics.system ?? {};
+    const queryStats: Partial<QueryStats> = dashboard?.query_stats ?? {};
+    const ingestionStats: Partial<IngestionStats> = dashboard?.ingestion_stats ?? {};
+    const cache: Partial<SystemMetrics["cache"]> = metrics.cache ?? {};
+    const cost: Partial<SystemMetrics["cost"]> = metrics.cost ?? {};
 
     return (
         <div>
@@ -87,7 +102,7 @@ export default function DashboardPage() {
                         </div>
                         <div className="stat-card">
                             <div className="stat-value" style={{ color: "var(--info)" }}>
-                                {(cache.hit_rate * 100)?.toFixed(0) || 0}%
+                                {((cache.hit_rate ?? 0) * 100).toFixed(0) || 0}%
                             </div>
                             <div className="stat-label">Cache Hit Rate</div>
                         </div>
@@ -122,9 +137,9 @@ export default function DashboardPage() {
                         {/* Alerts */}
                         <div className="glass-card">
                             <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 16 }}>🚨 Active Alerts</h3>
-                            {dashboard?.alerts?.length > 0 ? (
+                            {(dashboard?.alerts?.length ?? 0) > 0 ? (
                                 <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                                    {dashboard.alerts.map((a: any) => (
+                                    {dashboard!.alerts!.map((a: Alert) => (
                                         <div
                                             key={a.id}
                                             style={{
@@ -202,7 +217,7 @@ export default function DashboardPage() {
                                     />
                                 </div>
                             </div>
-                            {analytics?.cost_by_model?.map((m: any) => (
+                            {analytics?.cost_by_model?.map((m: CostByModel) => (
                                 <div
                                     key={m.model}
                                     style={{
@@ -228,7 +243,7 @@ export default function DashboardPage() {
                     {/* Model Registry */}
                     <div className="glass-card" style={{ marginBottom: 24 }}>
                         <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 16 }}>🏗️ Model Registry</h3>
-                        {models?.models?.length > 0 ? (
+                        {(models?.models?.length ?? 0) > 0 ? (
                             <table style={{ width: "100%", fontSize: 13 }}>
                                 <thead>
                                     <tr style={{ borderBottom: "1px solid var(--border-color)" }}>
@@ -240,7 +255,7 @@ export default function DashboardPage() {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {models.models.map((m: any) => (
+                                    {models!.models!.map((m: ModelVersion) => (
                                         <tr key={m.id} style={{ borderBottom: "1px solid var(--border-color)" }}>
                                             <td style={{ padding: 10, fontWeight: 600 }}>{m.name}</td>
                                             <td style={{ padding: 10 }}>{m.version}</td>
@@ -272,7 +287,7 @@ export default function DashboardPage() {
                                 <div style={{ display: "flex", justifyContent: "space-between" }}>
                                     <span style={{ color: "var(--text-muted)", fontSize: 13 }}>Avg Faithfulness</span>
                                     <span style={{ fontWeight: 600, color: "var(--success)" }}>
-                                        {(queryStats.avg_faithfulness * 100)?.toFixed(0) || "N/A"}%
+                                        {((queryStats.avg_faithfulness ?? 0) * 100).toFixed(0) || "N/A"}%
                                     </span>
                                 </div>
                                 <div style={{ display: "flex", justifyContent: "space-between" }}>

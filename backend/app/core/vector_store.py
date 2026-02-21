@@ -4,7 +4,6 @@ Handles collection management, insertion, search, and stats.
 """
 
 import chromadb
-from chromadb.config import Settings as ChromaSettings
 import numpy as np
 from typing import Optional
 from app.config import settings

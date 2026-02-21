@@ -3,7 +3,6 @@ Topic Model — BERTopic-based topic discovery and clustering.
 """
 
 import numpy as np
-from typing import Optional
 import time
 
 

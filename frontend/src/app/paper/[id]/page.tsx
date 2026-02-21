@@ -2,14 +2,22 @@
 
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
+import type { Paper } from "@/lib/types";
+
+interface RelatedPaper {
+    id: number;
+    title: string;
+    score: number;
+    source?: string;
+}
 
 const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:7860";
 
 export default function PaperDetailPage() {
     const params = useParams();
     const id = params.id;
-    const [paper, setPaper] = useState<any>(null);
-    const [related, setRelated] = useState<any[]>([]);
+    const [paper, setPaper] = useState<Paper | null>(null);
+    const [related, setRelated] = useState<RelatedPaper[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -213,7 +221,7 @@ export default function PaperDetailPage() {
                 <div className="glass-card" style={{ padding: "1.5rem" }}>
                     <h3 style={{ fontSize: 16, fontWeight: 600, marginBottom: 12, color: "var(--text-primary)" }}>Related Papers</h3>
                     <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                        {related.map((r: any, idx: number) => (
+                        {related.map((r: RelatedPaper, idx: number) => (
                             <a
                                 key={idx}
                                 href={`/paper/${r.id}`}

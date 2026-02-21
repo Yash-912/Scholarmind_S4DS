@@ -3,12 +3,28 @@
 import { useState, useRef, useEffect } from "react";
 import { synthesize } from "@/lib/api";
 
+interface SourcePaper {
+    title: string;
+    source: string;
+    score: number;
+}
+
+interface SynthesisMetrics {
+    latency_ms: number;
+    papers_reranked: number;
+    cost_usd: number;
+}
+
+interface HallucinationCheck {
+    score: number;
+}
+
 interface Message {
     role: "user" | "assistant";
     content: string;
-    papers?: any[];
-    metrics?: any;
-    hallucination_check?: any;
+    papers?: SourcePaper[];
+    metrics?: SynthesisMetrics;
+    hallucination_check?: HallucinationCheck;
 }
 
 export default function ChatPage() {
@@ -44,10 +60,11 @@ export default function ChatPage() {
                 hallucination_check: result.hallucination_check,
             };
             setMessages((prev) => [...prev, assistantMsg]);
-        } catch (err: any) {
+        } catch (err: unknown) {
+            const message = err instanceof Error ? err.message : String(err);
             setMessages((prev) => [
                 ...prev,
-                { role: "assistant", content: `❌ Error: ${err.message}` },
+                { role: "assistant", content: `❌ Error: ${message}` },
             ]);
         } finally {
             setLoading(false);
@@ -139,7 +156,7 @@ export default function ChatPage() {
                                                 📚 Source Papers ({msg.papers.length})
                                             </p>
                                             <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-                                                {msg.papers.map((p: any, j: number) => (
+                                                {msg.papers.map((p: SourcePaper, j: number) => (
                                                     <div
                                                         key={j}
                                                         style={{

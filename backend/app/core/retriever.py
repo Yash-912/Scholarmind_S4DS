@@ -6,7 +6,6 @@ with Reciprocal Rank Fusion.
 import numpy as np
 from rank_bm25 import BM25Okapi
 from dataclasses import dataclass
-from typing import Optional
 import time
 
 from app.core.embeddings import embedding_service

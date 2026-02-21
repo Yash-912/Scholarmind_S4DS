@@ -2,13 +2,14 @@
 
 import { useState, useCallback, useRef, useEffect } from "react";
 import { synthesize } from "@/lib/api";
+import type { SearchResult, SynthesisMetrics, HallucinationResult } from "@/lib/types";
 
 interface Message {
     role: "user" | "assistant";
     content: string;
-    papers?: any[];
-    metrics?: any;
-    hallucination_check?: any;
+    papers?: SearchResult[];
+    metrics?: SynthesisMetrics;
+    hallucination_check?: HallucinationResult;
 }
 
 export function useChat() {
@@ -43,11 +44,12 @@ export function useChat() {
                     hallucination_check: result.hallucination_check,
                 };
                 setMessages((prev) => [...prev, assistantMsg]);
-            } catch (err: any) {
-                setError(err.message);
+            } catch (err: unknown) {
+                const message = err instanceof Error ? err.message : String(err);
+                setError(message);
                 setMessages((prev) => [
                     ...prev,
-                    { role: "assistant", content: `❌ Error: ${err.message}` },
+                    { role: "assistant", content: `❌ Error: ${message}` },
                 ]);
             } finally {
                 setLoading(false);
