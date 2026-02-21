@@ -2,10 +2,8 @@
 Auto Remediation — Automated responses to detected issues.
 """
 
-import asyncio
 from dataclasses import dataclass
 from datetime import datetime, timezone, timedelta
-from collections import defaultdict
 
 
 @dataclass

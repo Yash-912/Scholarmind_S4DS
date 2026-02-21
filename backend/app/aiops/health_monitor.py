@@ -2,13 +2,10 @@
 AIOps — System health monitoring, anomaly detection, and auto-remediation.
 """
 
-import time
-import asyncio
 import os
 import psutil
 from datetime import datetime, timezone, timedelta
 from collections import deque
-from typing import Optional
 
 from app.config import settings
 from app.core.vector_store import vector_store
@@ -218,7 +215,7 @@ class HealthMonitor:
         if not self._latency_history:
             return {"p50": 0, "p95": 0, "p99": 0, "count": 0}
 
-        latencies = [l["latency_ms"] for l in self._latency_history]
+        latencies = [entry["latency_ms"] for entry in self._latency_history]
         import numpy as np
         return {
             "p50": round(np.percentile(latencies, 50), 2),

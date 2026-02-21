@@ -2,7 +2,7 @@
 Scaling Advisor — Load analysis and conference calendar-based scaling recommendations.
 """
 
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timezone
 from dataclasses import dataclass
 
 

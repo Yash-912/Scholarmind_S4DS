@@ -5,6 +5,7 @@ on:
     branches: [main]
   push:
     branches: [main]
+  workflow_call:
 
 env:
   PYTHON_VERSION: "3.12"
@@ -94,7 +95,7 @@ jobs:
 
       - name: Lint
         working-directory: frontend
-        run: npx next lint
+        run: npm run lint
 
   frontend-build:
     name: 🏗️ Frontend Build

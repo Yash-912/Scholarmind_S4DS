@@ -3,8 +3,8 @@ Alert Rules Engine — Evaluates alert conditions and fires alerts.
 """
 
 from dataclasses import dataclass
-from datetime import datetime, timezone, timedelta
-from typing import Callable, Optional
+from datetime import datetime, timezone
+from typing import Callable
 
 
 @dataclass
