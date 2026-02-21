@@ -62,15 +62,21 @@ async def synthesize_stream(body: dict):
 
     # Retrieve and rerank
     retrieved = await retriever.retrieve(query=query, top_k=30)
-    docs = [{"text": p.text, "title": p.title, "paper_id": p.paper_id} for p in retrieved]
+    docs = [
+        {"text": p.text, "title": p.title, "paper_id": p.paper_id} for p in retrieved
+    ]
 
     if settings.RERANKER_ENABLED:
         reranked = reranker.rerank(query, docs, top_k=settings.MAX_CONTEXT_CHUNKS)
     else:
-        reranked = docs[:settings.MAX_CONTEXT_CHUNKS]
+        reranked = docs[: settings.MAX_CONTEXT_CHUNKS]
 
-    papers_for_prompt = [{"title": d["title"], "text": d["text"][:800]} for d in reranked]
-    prompt, system_prompt, _ = prompt_registry.render("synthesis", query=query, papers=papers_for_prompt)
+    papers_for_prompt = [
+        {"title": d["title"], "text": d["text"][:800]} for d in reranked
+    ]
+    prompt, system_prompt, _ = prompt_registry.render(
+        "synthesis", query=query, papers=papers_for_prompt
+    )
 
     async def event_stream():
         async for chunk in llm_gateway.generate_stream(

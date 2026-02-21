@@ -14,6 +14,7 @@ class EmbeddingService:
 
     def __init__(self, model_name: str = None, dimension: int = None):
         from app.config import settings
+
         self.model_name = model_name or settings.EMBEDDING_MODEL
         self.dimension = dimension or settings.EMBEDDING_DIM
         self._session = None
@@ -33,7 +34,9 @@ class EmbeddingService:
             self._load_onnx()
             self._backend = "onnx"
             elapsed = time.time() - start
-            print(f"✅ ONNX embedding model loaded in {elapsed:.1f}s (dim={self.dimension})")
+            print(
+                f"✅ ONNX embedding model loaded in {elapsed:.1f}s (dim={self.dimension})"
+            )
         except Exception as e:
             print(f"⚠️ ONNX load failed: {e}")
             print("⚠️ Using random embeddings for demo mode")
@@ -66,11 +69,16 @@ class EmbeddingService:
 
         # Load ONNX Runtime session
         import onnxruntime as ort
+
         sess_options = ort.SessionOptions()
-        sess_options.graph_optimization_level = ort.GraphOptimizationLevel.ORT_ENABLE_ALL
+        sess_options.graph_optimization_level = (
+            ort.GraphOptimizationLevel.ORT_ENABLE_ALL
+        )
         sess_options.inter_op_num_threads = 2
         sess_options.intra_op_num_threads = 4
-        self._session = ort.InferenceSession(onnx_path, sess_options, providers=["CPUExecutionProvider"])
+        self._session = ort.InferenceSession(
+            onnx_path, sess_options, providers=["CPUExecutionProvider"]
+        )
 
         # Load tokenizer
         self._tokenizer = Tokenizer.from_file(tokenizer_path)
@@ -139,10 +147,14 @@ class EmbeddingService:
         if self._backend == "onnx":
             all_embeddings = []
             for i in range(0, len(texts), batch_size):
-                batch = texts[i:i + batch_size]
+                batch = texts[i : i + batch_size]
                 emb = self._encode_onnx(batch)
                 all_embeddings.append(emb)
-            embeddings = np.vstack(all_embeddings) if all_embeddings else np.zeros((0, self.dimension))
+            embeddings = (
+                np.vstack(all_embeddings)
+                if all_embeddings
+                else np.zeros((0, self.dimension))
+            )
         else:
             # Random fallback for demo
             embeddings = np.random.randn(len(texts), self.dimension).astype(np.float32)
@@ -150,7 +162,9 @@ class EmbeddingService:
             embeddings = embeddings / norms
 
         elapsed = time.time() - start
-        print(f"📊 Embedded {len(texts)} texts in {elapsed:.2f}s ({len(texts)/max(elapsed,0.001):.0f} texts/s)")
+        print(
+            f"📊 Embedded {len(texts)} texts in {elapsed:.2f}s ({len(texts) / max(elapsed, 0.001):.0f} texts/s)"
+        )
         return embeddings
 
     def embed_query(self, query: str) -> np.ndarray:

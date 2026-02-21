@@ -16,13 +16,15 @@ class CostTracker:
 
     def record(self, model: str, provider: str, cost_usd: float, tokens: int):
         """Record a cost event."""
-        self._costs.append({
-            "model": model,
-            "provider": provider,
-            "cost_usd": cost_usd,
-            "tokens": tokens,
-            "timestamp": datetime.now(timezone.utc),
-        })
+        self._costs.append(
+            {
+                "model": model,
+                "provider": provider,
+                "cost_usd": cost_usd,
+                "tokens": tokens,
+                "timestamp": datetime.now(timezone.utc),
+            }
+        )
 
     def get_hourly_spend(self) -> float:
         """Get total spend in the last hour."""
@@ -37,7 +39,9 @@ class CostTracker:
             "hourly_spend_usd": round(hourly, 4),
             "hourly_limit_usd": self._hourly_limit,
             "over_budget": over_budget,
-            "utilization_pct": round((hourly / max(self._hourly_limit, 0.001)) * 100, 1),
+            "utilization_pct": round(
+                (hourly / max(self._hourly_limit, 0.001)) * 100, 1
+            ),
         }
 
     def get_breakdown(self, hours: int = 24) -> dict:

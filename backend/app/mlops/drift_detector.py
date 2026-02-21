@@ -90,8 +90,10 @@ class DriftDetector:
 
         # Compute PSI
         baseline_norms = np.linalg.norm(
-            np.random.randn(max(len(new_embeddings), 50), new_embeddings.shape[1]) * self._baseline_std + self._baseline_mean,
-            axis=1
+            np.random.randn(max(len(new_embeddings), 50), new_embeddings.shape[1])
+            * self._baseline_std
+            + self._baseline_mean,
+            axis=1,
         )
         new_norms = np.linalg.norm(new_embeddings, axis=1)
         psi = self.compute_psi(baseline_norms, new_norms)

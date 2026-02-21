@@ -37,7 +37,9 @@ class VectorStore:
             metadata={"hnsw:space": "cosine"},
         )
         self._initialized = True
-        print(f"✅ ChromaDB initialized at {self.persist_dir} (collection: {self.collection_name}, count: {self.collection.count()})")
+        print(
+            f"✅ ChromaDB initialized at {self.persist_dir} (collection: {self.collection_name}, count: {self.collection.count()})"
+        )
 
     def add_papers(
         self,
@@ -64,10 +66,10 @@ class VectorStore:
         # ChromaDB has a batch size limit, process in chunks
         batch_size = 100
         for i in range(0, len(ids), batch_size):
-            batch_ids = ids[i:i + batch_size]
-            batch_embeddings = embeddings[i:i + batch_size]
-            batch_docs = documents[i:i + batch_size]
-            batch_meta = metadatas[i:i + batch_size]
+            batch_ids = ids[i : i + batch_size]
+            batch_embeddings = embeddings[i : i + batch_size]
+            batch_docs = documents[i : i + batch_size]
+            batch_meta = metadatas[i : i + batch_size]
 
             self.collection.upsert(
                 ids=batch_ids,
@@ -114,7 +116,9 @@ class VectorStore:
         results = self.collection.query(**kwargs)
         elapsed = time.time() - start
 
-        print(f"🔍 Vector search: {len(results['ids'][0]) if results['ids'] else 0} results in {elapsed*1000:.0f}ms")
+        print(
+            f"🔍 Vector search: {len(results['ids'][0]) if results['ids'] else 0} results in {elapsed * 1000:.0f}ms"
+        )
         return results
 
     def delete(self, ids: list[str]):

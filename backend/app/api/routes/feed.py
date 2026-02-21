@@ -98,7 +98,9 @@ async def get_bookmarks(
                 "abstract": p.abstract[:200] + "...",
                 "authors": p.authors,
                 "source": p.source,
-                "published_date": p.published_date.isoformat() if p.published_date else None,
+                "published_date": p.published_date.isoformat()
+                if p.published_date
+                else None,
             }
             for p in papers
         ],

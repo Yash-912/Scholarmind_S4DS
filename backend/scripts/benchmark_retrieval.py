@@ -44,14 +44,18 @@ async def main():
 
         print(f"  Query: {query[:50]}...")
         print(f"    No rerank: {len(results)} results in {latency_no_rerank:.0f}ms")
-        print(f"    Reranked:  {len(results_reranked)} results in {latency_reranked:.0f}ms")
+        print(
+            f"    Reranked:  {len(results_reranked)} results in {latency_reranked:.0f}ms"
+        )
 
-        latencies.append({
-            "query": query,
-            "no_rerank_ms": latency_no_rerank,
-            "reranked_ms": latency_reranked,
-            "results_count": len(results),
-        })
+        latencies.append(
+            {
+                "query": query,
+                "no_rerank_ms": latency_no_rerank,
+                "reranked_ms": latency_reranked,
+                "results_count": len(results),
+            }
+        )
 
     avg_no_rerank = sum(entry["no_rerank_ms"] for entry in latencies) / len(latencies)
     avg_reranked = sum(entry["reranked_ms"] for entry in latencies) / len(latencies)

@@ -16,6 +16,7 @@ ARXIV_API_URL = "https://export.arxiv.org/api/query"
 @dataclass
 class RawPaper:
     """Raw paper data from a scraper source."""
+
     title: str
     abstract: str
     authors: list[str]
@@ -172,16 +173,18 @@ async def scrape_arxiv_by_query(
                     pdf_url = link.get("href")
                     break
 
-            papers.append(RawPaper(
-                title=title,
-                abstract=abstract,
-                authors=authors,
-                source="arxiv",
-                source_id=arxiv_id,
-                published_date=published,
-                categories=categories_list,
-                pdf_url=pdf_url,
-            ))
+            papers.append(
+                RawPaper(
+                    title=title,
+                    abstract=abstract,
+                    authors=authors,
+                    source="arxiv",
+                    source_id=arxiv_id,
+                    published_date=published,
+                    categories=categories_list,
+                    pdf_url=pdf_url,
+                )
+            )
         except Exception as e:
             print(f"⚠️ Error parsing: {e}")
             continue

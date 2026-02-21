@@ -48,7 +48,9 @@ class ModelMonitor:
             "max": max(values),
             "latest": values[-1],
             "p50": sorted(values)[len(values) // 2],
-            "p95": sorted(values)[int(len(values) * 0.95)] if len(values) >= 20 else None,
+            "p95": sorted(values)[int(len(values) * 0.95)]
+            if len(values) >= 20
+            else None,
         }
 
     def check_degradation(
@@ -70,7 +72,9 @@ class ModelMonitor:
 
         # For latency metrics, positive change is bad; for quality metrics negative is bad
         is_latency = "latency" in metric_name or "time" in metric_name
-        degraded = change_pct > threshold_pct if is_latency else change_pct < -threshold_pct
+        degraded = (
+            change_pct > threshold_pct if is_latency else change_pct < -threshold_pct
+        )
 
         return {
             "degraded": degraded,

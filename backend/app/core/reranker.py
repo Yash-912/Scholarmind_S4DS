@@ -21,6 +21,7 @@ class Reranker:
         print(f"🔄 Loading re-ranker: {self.model_name}")
         try:
             from sentence_transformers import CrossEncoder
+
             self.model = CrossEncoder(self.model_name)
             self._loaded = True
             print("✅ Re-ranker loaded")
@@ -63,10 +64,12 @@ class Reranker:
         for doc, score in zip(documents, scores):
             doc["rerank_score"] = float(score)
 
-        reranked = sorted(documents, key=lambda x: x.get("rerank_score", 0), reverse=True)
+        reranked = sorted(
+            documents, key=lambda x: x.get("rerank_score", 0), reverse=True
+        )
 
         elapsed = time.time() - start
-        print(f"♻️ Re-ranked {len(documents)} → top {top_k} in {elapsed*1000:.0f}ms")
+        print(f"♻️ Re-ranked {len(documents)} → top {top_k} in {elapsed * 1000:.0f}ms")
 
         return reranked[:top_k]
 

@@ -49,10 +49,17 @@ class HealthMonitor:
                 "cpu_percent": psutil.cpu_percent(interval=0),
                 "memory_used_mb": round(process.memory_info().rss / 1024 / 1024, 1),
                 "memory_percent": round(process.memory_percent(), 1),
-                "disk_usage_percent": psutil.disk_usage("/").percent if os.name != "nt" else psutil.disk_usage("C:\\").percent,
+                "disk_usage_percent": psutil.disk_usage("/").percent
+                if os.name != "nt"
+                else psutil.disk_usage("C:\\").percent,
             }
         except Exception:
-            return {"cpu_percent": 0, "memory_used_mb": 0, "memory_percent": 0, "disk_usage_percent": 0}
+            return {
+                "cpu_percent": 0,
+                "memory_used_mb": 0,
+                "memory_percent": 0,
+                "disk_usage_percent": 0,
+            }
 
     def _get_vector_store_metrics(self) -> dict:
         """Get vector store health metrics."""
@@ -89,56 +96,64 @@ class HealthMonitor:
         # Check memory usage
         mem_pct = metrics.get("system", {}).get("memory_percent", 0)
         if mem_pct > 85:
-            anomalies.append({
-                "name": "high_memory",
-                "severity": "warning",
-                "message": f"Memory usage is at {mem_pct}%",
-                "metric_name": "memory_percent",
-                "metric_value": mem_pct,
-                "threshold": 85,
-                "remediation": "Consider restarting the service or reducing cache size",
-            })
+            anomalies.append(
+                {
+                    "name": "high_memory",
+                    "severity": "warning",
+                    "message": f"Memory usage is at {mem_pct}%",
+                    "metric_name": "memory_percent",
+                    "metric_value": mem_pct,
+                    "threshold": 85,
+                    "remediation": "Consider restarting the service or reducing cache size",
+                }
+            )
 
         # Check vector store
         vs_status = metrics.get("vector_store", {}).get("status", "")
         if vs_status == "unreachable":
-            anomalies.append({
-                "name": "vector_store_down",
-                "severity": "critical",
-                "message": "Vector store is unreachable",
-                "metric_name": "vector_store_status",
-                "metric_value": 0,
-                "threshold": 1,
-                "remediation": "Check ChromaDB process and disk space",
-            })
+            anomalies.append(
+                {
+                    "name": "vector_store_down",
+                    "severity": "critical",
+                    "message": "Vector store is unreachable",
+                    "metric_name": "vector_store_status",
+                    "metric_value": 0,
+                    "threshold": 1,
+                    "remediation": "Check ChromaDB process and disk space",
+                }
+            )
 
         # Check cost budget
         cost_data = metrics.get("cost", {})
         if cost_data.get("over_budget"):
-            anomalies.append({
-                "name": "cost_overrun",
-                "severity": "warning",
-                "message": f"Hourly LLM spending (${cost_data.get('hourly_spend_usd', 0):.2f}) exceeds limit (${cost_data.get('hourly_limit_usd', 0):.2f})",
-                "metric_name": "hourly_cost",
-                "metric_value": cost_data.get("hourly_spend_usd", 0),
-                "threshold": cost_data.get("hourly_limit_usd", 0),
-                "remediation": "Route to smaller models or enable aggressive caching",
-            })
+            anomalies.append(
+                {
+                    "name": "cost_overrun",
+                    "severity": "warning",
+                    "message": f"Hourly LLM spending (${cost_data.get('hourly_spend_usd', 0):.2f}) exceeds limit (${cost_data.get('hourly_limit_usd', 0):.2f})",
+                    "metric_name": "hourly_cost",
+                    "metric_value": cost_data.get("hourly_spend_usd", 0),
+                    "threshold": cost_data.get("hourly_limit_usd", 0),
+                    "remediation": "Route to smaller models or enable aggressive caching",
+                }
+            )
 
         # Check cache health
         cache_data = metrics.get("cache", {})
         cache_hit_rate = cache_data.get("hit_rate", 0)
         total_cache = cache_data.get("hits", 0) + cache_data.get("misses", 0)
         if total_cache > 50 and cache_hit_rate < 0.1:
-            anomalies.append({
-                "name": "low_cache_hit_rate",
-                "severity": "info",
-                "message": f"Cache hit rate is only {cache_hit_rate*100:.1f}%",
-                "metric_name": "cache_hit_rate",
-                "metric_value": cache_hit_rate,
-                "threshold": 0.1,
-                "remediation": "Consider lowering the cache similarity threshold",
-            })
+            anomalies.append(
+                {
+                    "name": "low_cache_hit_rate",
+                    "severity": "info",
+                    "message": f"Cache hit rate is only {cache_hit_rate * 100:.1f}%",
+                    "metric_name": "cache_hit_rate",
+                    "metric_value": cache_hit_rate,
+                    "threshold": 0.1,
+                    "remediation": "Consider lowering the cache similarity threshold",
+                }
+            )
 
         # Create alerts for anomalies (with cooldown)
         for anomaly in anomalies:
@@ -204,11 +219,13 @@ class HealthMonitor:
 
     def record_latency(self, endpoint: str, latency_ms: float):
         """Record API endpoint latency."""
-        self._latency_history.append({
-            "endpoint": endpoint,
-            "latency_ms": latency_ms,
-            "timestamp": datetime.now(timezone.utc),
-        })
+        self._latency_history.append(
+            {
+                "endpoint": endpoint,
+                "latency_ms": latency_ms,
+                "timestamp": datetime.now(timezone.utc),
+            }
+        )
 
     def get_latency_stats(self) -> dict:
         """Get latency statistics."""
@@ -217,6 +234,7 @@ class HealthMonitor:
 
         latencies = [entry["latency_ms"] for entry in self._latency_history]
         import numpy as np
+
         return {
             "p50": round(np.percentile(latencies, 50), 2),
             "p95": round(np.percentile(latencies, 95), 2),

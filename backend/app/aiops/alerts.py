@@ -41,27 +41,39 @@ class AlertEngine:
     def add_default_rules(self, health_monitor=None, cost_tracker=None):
         """Add default monitoring rules."""
         if health_monitor:
-            self._rules.append(AlertRule(
-                name="high_memory",
-                condition=lambda: self._check_metric(health_monitor, "memory_percent", 85),
-                severity="warning",
-                message="Memory usage above 85%",
-            ))
-            self._rules.append(AlertRule(
-                name="high_cpu",
-                condition=lambda: self._check_metric(health_monitor, "cpu_percent", 90),
-                severity="critical",
-                message="CPU usage above 90%",
-            ))
+            self._rules.append(
+                AlertRule(
+                    name="high_memory",
+                    condition=lambda: self._check_metric(
+                        health_monitor, "memory_percent", 85
+                    ),
+                    severity="warning",
+                    message="Memory usage above 85%",
+                )
+            )
+            self._rules.append(
+                AlertRule(
+                    name="high_cpu",
+                    condition=lambda: self._check_metric(
+                        health_monitor, "cpu_percent", 90
+                    ),
+                    severity="critical",
+                    message="CPU usage above 90%",
+                )
+            )
 
         if cost_tracker:
-            self._rules.append(AlertRule(
-                name="cost_overrun",
-                condition=lambda: cost_tracker.get_summary().get("over_budget", False),
-                severity="critical",
-                message="Hourly LLM cost exceeds budget limit",
-                cooldown_minutes=30,
-            ))
+            self._rules.append(
+                AlertRule(
+                    name="cost_overrun",
+                    condition=lambda: cost_tracker.get_summary().get(
+                        "over_budget", False
+                    ),
+                    severity="critical",
+                    message="Hourly LLM cost exceeds budget limit",
+                    cooldown_minutes=30,
+                )
+            )
 
     def _check_metric(self, monitor, metric: str, threshold: float) -> bool:
         """Helper to check a metric against a threshold."""

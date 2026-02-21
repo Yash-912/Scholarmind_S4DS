@@ -17,7 +17,11 @@ from app.mlops.experiment_tracker import experiment_tracker
 
 async def main():
     # Load golden queries
-    eval_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "eval", "golden_queries.json")
+    eval_path = os.path.join(
+        os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+        "eval",
+        "golden_queries.json",
+    )
     with open(eval_path) as f:
         golden = json.load(f)
 
@@ -26,13 +30,17 @@ async def main():
     test_cases = []
     for item in golden:
         print(f"  → {item['query'][:60]}...")
-        result = await synthesizer.synthesize(item["query"], query_type=item.get("query_type"))
-        test_cases.append({
-            "query": item["query"],
-            "answer": result.get("answer", ""),
-            "contexts": [p.get("snippet", "") for p in result.get("papers", [])],
-            "ground_truth": item.get("expected_topics"),
-        })
+        result = await synthesizer.synthesize(
+            item["query"], query_type=item.get("query_type")
+        )
+        test_cases.append(
+            {
+                "query": item["query"],
+                "answer": result.get("answer", ""),
+                "contexts": [p.get("snippet", "") for p in result.get("papers", [])],
+                "ground_truth": item.get("expected_topics"),
+            }
+        )
 
     results = await rag_evaluator.evaluate_batch(test_cases)
     summary = rag_evaluator.summary(results)

@@ -20,18 +20,24 @@ async def list_papers(
     db: AsyncSession = Depends(get_db),
 ):
     """List papers with pagination and optional filtering."""
-    papers = await crud.list_papers(db, skip=skip, limit=limit, source=source, topic_id=topic_id)
+    papers = await crud.list_papers(
+        db, skip=skip, limit=limit, source=source, topic_id=topic_id
+    )
     total = await crud.count_papers(db)
     return {
         "papers": [
             {
                 "id": p.id,
                 "title": p.title,
-                "abstract": p.abstract[:300] + "..." if len(p.abstract) > 300 else p.abstract,
+                "abstract": p.abstract[:300] + "..."
+                if len(p.abstract) > 300
+                else p.abstract,
                 "authors": p.authors,
                 "source": p.source,
                 "source_id": p.source_id,
-                "published_date": p.published_date.isoformat() if p.published_date else None,
+                "published_date": p.published_date.isoformat()
+                if p.published_date
+                else None,
                 "categories": p.categories,
                 "citation_count": p.citation_count,
                 "novelty_score": p.novelty_score,
@@ -62,7 +68,9 @@ async def search_papers(
                 "abstract": p.abstract[:200] + "...",
                 "authors": p.authors,
                 "source": p.source,
-                "published_date": p.published_date.isoformat() if p.published_date else None,
+                "published_date": p.published_date.isoformat()
+                if p.published_date
+                else None,
                 "novelty_score": p.novelty_score,
             }
             for p in papers
@@ -93,7 +101,9 @@ async def get_paper(paper_id: int, db: AsyncSession = Depends(get_db)):
         "source": paper.source,
         "source_id": paper.source_id,
         "doi": paper.doi,
-        "published_date": paper.published_date.isoformat() if paper.published_date else None,
+        "published_date": paper.published_date.isoformat()
+        if paper.published_date
+        else None,
         "categories": paper.categories,
         "references": paper.references,
         "citation_count": paper.citation_count,
@@ -119,7 +129,9 @@ async def get_paper_novelty(paper_id: int, db: AsyncSession = Depends(get_db)):
     )
 
     # Update in DB
-    await crud.update_paper_novelty(db, paper_id, result["novelty_score"], result["novelty_type"])
+    await crud.update_paper_novelty(
+        db, paper_id, result["novelty_score"], result["novelty_type"]
+    )
 
     return {
         "paper_id": paper_id,

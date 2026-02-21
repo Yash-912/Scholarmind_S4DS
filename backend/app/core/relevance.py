@@ -91,12 +91,14 @@ class RelevanceScorer:
             score = 1 - distance  # Convert to similarity
             metadata = results["metadatas"][0][i] if results["metadatas"] else {}
 
-            scored.append({
-                "paper_id": paper_id,
-                "relevance_score": round(score, 4),
-                "title": metadata.get("title", ""),
-                "source": metadata.get("source", ""),
-            })
+            scored.append(
+                {
+                    "paper_id": paper_id,
+                    "relevance_score": round(score, 4),
+                    "title": metadata.get("title", ""),
+                    "source": metadata.get("source", ""),
+                }
+            )
 
         return scored
 

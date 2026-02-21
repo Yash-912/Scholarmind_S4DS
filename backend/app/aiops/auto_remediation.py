@@ -53,7 +53,9 @@ class AutoRemediation:
         self._actions.append(action)
         return action
 
-    async def handle_high_latency(self, component: str, latency_ms: float) -> RemediationAction:
+    async def handle_high_latency(
+        self, component: str, latency_ms: float
+    ) -> RemediationAction:
         """Handle latency spikes."""
         if not self._can_act(f"latency_{component}"):
             return RemediationAction(
@@ -75,7 +77,9 @@ class AutoRemediation:
         self._actions.append(action)
         return action
 
-    async def handle_cost_spike(self, hourly_cost: float, limit: float) -> RemediationAction:
+    async def handle_cost_spike(
+        self, hourly_cost: float, limit: float
+    ) -> RemediationAction:
         """Handle cost overrun."""
         if not self._can_act("cost_spike"):
             return RemediationAction(
@@ -97,7 +101,9 @@ class AutoRemediation:
         self._actions.append(action)
         return action
 
-    async def handle_scraper_failure(self, source: str, error: str) -> RemediationAction:
+    async def handle_scraper_failure(
+        self, source: str, error: str
+    ) -> RemediationAction:
         """Handle scraper failures with retry logic."""
         action = RemediationAction(
             timestamp=datetime.now(timezone.utc).isoformat(),
@@ -111,8 +117,15 @@ class AutoRemediation:
 
     def get_circuit_breaker_status(self) -> dict:
         """Get status of all circuit breakers."""
-        return {k: {**v, "last_failure": v["last_failure"].isoformat() if v["last_failure"] else None}
-                for k, v in self._circuit_breakers.items()}
+        return {
+            k: {
+                **v,
+                "last_failure": v["last_failure"].isoformat()
+                if v["last_failure"]
+                else None,
+            }
+            for k, v in self._circuit_breakers.items()
+        }
 
     def get_recent_actions(self, limit: int = 20) -> list[dict]:
         """Get recent remediation actions."""
@@ -133,7 +146,9 @@ class AutoRemediation:
         return datetime.now(timezone.utc) > self._cooldowns[key]
 
     def _set_cooldown(self, key: str):
-        self._cooldowns[key] = datetime.now(timezone.utc) + timedelta(minutes=self.cooldown_minutes)
+        self._cooldowns[key] = datetime.now(timezone.utc) + timedelta(
+            minutes=self.cooldown_minutes
+        )
 
 
 auto_remediation = AutoRemediation()

@@ -51,18 +51,22 @@ class ScalingAdvisor:
                 surge_date = datetime(year, surge_month, 1, tzinfo=timezone.utc)
                 conf_date = datetime(
                     year if conf_month >= surge_month else year + 1,
-                    conf_month, 1, tzinfo=timezone.utc
+                    conf_month,
+                    1,
+                    tzinfo=timezone.utc,
                 )
 
                 days_until = (surge_date - now).days
                 if 0 <= days_until <= lookahead_days:
-                    upcoming.append({
-                        "name": conf["name"],
-                        "field": conf["field"],
-                        "conference_date": conf_date.strftime("%B %Y"),
-                        "surge_starts": surge_date.strftime("%B %Y"),
-                        "days_until_surge": days_until,
-                    })
+                    upcoming.append(
+                        {
+                            "name": conf["name"],
+                            "field": conf["field"],
+                            "conference_date": conf_date.strftime("%B %Y"),
+                            "surge_starts": surge_date.strftime("%B %Y"),
+                            "days_until_surge": days_until,
+                        }
+                    )
 
         return sorted(upcoming, key=lambda x: x["days_until_surge"])
 
@@ -80,62 +84,72 @@ class ScalingAdvisor:
         # Conference-based advisories
         upcoming = self.get_upcoming_conferences(lookahead_days=60)
         for conf in upcoming[:3]:
-            advice.append(ScalingAdvice(
-                timestamp=now,
-                category="conference_surge",
-                severity="info" if conf["days_until_surge"] > 30 else "warning",
-                title=f"{conf['name']} paper surge approaching",
-                description=(
-                    f"{conf['name']} ({conf['field']}) papers expected to surge "
-                    f"in {conf['days_until_surge']} days. Conference in {conf['conference_date']}."
-                ),
-                recommendation=(
-                    f"Increase {conf['field']}-related category scraping. "
-                    "Consider pre-warming the embedding cache with related search terms."
-                ),
-            ))
+            advice.append(
+                ScalingAdvice(
+                    timestamp=now,
+                    category="conference_surge",
+                    severity="info" if conf["days_until_surge"] > 30 else "warning",
+                    title=f"{conf['name']} paper surge approaching",
+                    description=(
+                        f"{conf['name']} ({conf['field']}) papers expected to surge "
+                        f"in {conf['days_until_surge']} days. Conference in {conf['conference_date']}."
+                    ),
+                    recommendation=(
+                        f"Increase {conf['field']}-related category scraping. "
+                        "Consider pre-warming the embedding cache with related search terms."
+                    ),
+                )
+            )
 
         # Resource-based advisories
         if cpu_percent > 80:
-            advice.append(ScalingAdvice(
-                timestamp=now,
-                category="resource",
-                severity="action_required",
-                title="High CPU usage",
-                description=f"CPU at {cpu_percent:.0f}%. Embedding and topic modeling may be contending.",
-                recommendation="Reduce concurrent embedding batch size. Consider disabling re-ranker for low-priority queries.",
-            ))
+            advice.append(
+                ScalingAdvice(
+                    timestamp=now,
+                    category="resource",
+                    severity="action_required",
+                    title="High CPU usage",
+                    description=f"CPU at {cpu_percent:.0f}%. Embedding and topic modeling may be contending.",
+                    recommendation="Reduce concurrent embedding batch size. Consider disabling re-ranker for low-priority queries.",
+                )
+            )
 
         if memory_percent > 80:
-            advice.append(ScalingAdvice(
-                timestamp=now,
-                category="resource",
-                severity="warning" if memory_percent < 90 else "action_required",
-                title="High memory usage",
-                description=f"Memory at {memory_percent:.0f}%. ChromaDB and BM25 index are memory-intensive.",
-                recommendation="Reduce BM25 index size, increase semantic cache eviction, or reduce ChromaDB segment count.",
-            ))
+            advice.append(
+                ScalingAdvice(
+                    timestamp=now,
+                    category="resource",
+                    severity="warning" if memory_percent < 90 else "action_required",
+                    title="High memory usage",
+                    description=f"Memory at {memory_percent:.0f}%. ChromaDB and BM25 index are memory-intensive.",
+                    recommendation="Reduce BM25 index size, increase semantic cache eviction, or reduce ChromaDB segment count.",
+                )
+            )
 
         # Load pattern advisories
         if daily_queries > 500:
-            advice.append(ScalingAdvice(
-                timestamp=now,
-                category="load_pattern",
-                severity="info",
-                title="High query volume",
-                description=f"{daily_queries} queries in the last 24h.",
-                recommendation="Enable aggressive semantic caching (lower threshold to 0.90). Consider read replicas for SQLite.",
-            ))
+            advice.append(
+                ScalingAdvice(
+                    timestamp=now,
+                    category="load_pattern",
+                    severity="info",
+                    title="High query volume",
+                    description=f"{daily_queries} queries in the last 24h.",
+                    recommendation="Enable aggressive semantic caching (lower threshold to 0.90). Consider read replicas for SQLite.",
+                )
+            )
 
         if current_papers > 10000:
-            advice.append(ScalingAdvice(
-                timestamp=now,
-                category="load_pattern",
-                severity="info",
-                title="Large paper corpus",
-                description=f"{current_papers} papers indexed. BM25 in-memory index growing.",
-                recommendation="Consider sharding ChromaDB collection by year. Schedule BM25 index rebuild off-peak.",
-            ))
+            advice.append(
+                ScalingAdvice(
+                    timestamp=now,
+                    category="load_pattern",
+                    severity="info",
+                    title="Large paper corpus",
+                    description=f"{current_papers} papers indexed. BM25 in-memory index growing.",
+                    recommendation="Consider sharding ChromaDB collection by year. Schedule BM25 index rebuild off-peak.",
+                )
+            )
 
         return advice
 

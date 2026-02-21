@@ -45,7 +45,9 @@ def start_scheduler():
         replace_existing=True,
     )
     scheduler.start()
-    print(f"⏰ Scheduler started: ingestion every {settings.SCRAPE_INTERVAL_HOURS} hours")
+    print(
+        f"⏰ Scheduler started: ingestion every {settings.SCRAPE_INTERVAL_HOURS} hours"
+    )
 
 
 def stop_scheduler():

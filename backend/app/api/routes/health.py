@@ -28,7 +28,9 @@ async def readiness_check():
 
     # Check vector store
     vs = metrics.get("vector_store", {})
-    components["vector_store"] = {"status": "up" if vs.get("total_vectors", 0) >= 0 else "down"}
+    components["vector_store"] = {
+        "status": "up" if vs.get("total_vectors", 0) >= 0 else "down"
+    }
 
     # Check LLM
     llm = metrics.get("llm", {})

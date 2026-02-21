@@ -39,10 +39,12 @@ class HallucinationChecker:
         citations = self._extract_citations(generated_text)
 
         # Build source context
-        source_context = "\n\n".join([
-            f"[Paper {i+1}] {p.get('title', 'Unknown')}\n{p.get('text', '')[:500]}"
-            for i, p in enumerate(source_papers[:10])
-        ])
+        source_context = "\n\n".join(
+            [
+                f"[Paper {i + 1}] {p.get('title', 'Unknown')}\n{p.get('text', '')[:500]}"
+                for i, p in enumerate(source_papers[:10])
+            ]
+        )
 
         # Use LLM to verify faithfulness
         check_prompt = f"""You are a fact-checking assistant. Check if the following synthesis is faithful to the source papers.
@@ -79,7 +81,8 @@ Respond in this JSON format:
 
             # Extract JSON from response
             import json
-            json_match = re.search(r'\{[\s\S]*\}', response_text)
+
+            json_match = re.search(r"\{[\s\S]*\}", response_text)
             if json_match:
                 parsed = json.loads(json_match.group())
                 claims = parsed.get("claims", [])
@@ -115,7 +118,7 @@ Respond in this JSON format:
 
     def _extract_citations(self, text: str) -> list[str]:
         """Extract [Paper N] citations from text."""
-        return re.findall(r'\[Paper \d+\]', text)
+        return re.findall(r"\[Paper \d+\]", text)
 
 
 # Global singleton

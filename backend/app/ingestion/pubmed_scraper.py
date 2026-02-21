@@ -42,7 +42,9 @@ async def scrape_pubmed(
 
         # Parse PMIDs
         search_root = ET.fromstring(search_resp.text)
-        pmids = [id_elem.text for id_elem in search_root.findall(".//Id") if id_elem.text]
+        pmids = [
+            id_elem.text for id_elem in search_root.findall(".//Id") if id_elem.text
+        ]
 
         if not pmids:
             print("⚠️ No PubMed results found")
@@ -110,9 +112,18 @@ async def scrape_pubmed(
                 try:
                     # Handle month names
                     month_map = {
-                        "Jan": "01", "Feb": "02", "Mar": "03", "Apr": "04",
-                        "May": "05", "Jun": "06", "Jul": "07", "Aug": "08",
-                        "Sep": "09", "Oct": "10", "Nov": "11", "Dec": "12"
+                        "Jan": "01",
+                        "Feb": "02",
+                        "Mar": "03",
+                        "Apr": "04",
+                        "May": "05",
+                        "Jun": "06",
+                        "Jul": "07",
+                        "Aug": "08",
+                        "Sep": "09",
+                        "Oct": "10",
+                        "Nov": "11",
+                        "Dec": "12",
                     }
                     if month in month_map:
                         month = month_map[month]
@@ -132,7 +143,9 @@ async def scrape_pubmed(
 
             # MeSH terms as categories
             mesh_terms = []
-            for mesh in medline.findall(".//MeshHeadingList/MeshHeading/DescriptorName"):
+            for mesh in medline.findall(
+                ".//MeshHeadingList/MeshHeading/DescriptorName"
+            ):
                 if mesh.text:
                     mesh_terms.append(mesh.text)
 

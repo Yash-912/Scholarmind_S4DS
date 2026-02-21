@@ -52,10 +52,7 @@ class AnomalyDetector:
         values = np.array([v for _, v in self._history[metric_name]]).reshape(-1, 1)
 
         # Retrain model periodically (every 50 new observations)
-        if (
-            metric_name not in self._models
-            or len(self._history[metric_name]) % 50 == 0
-        ):
+        if metric_name not in self._models or len(self._history[metric_name]) % 50 == 0:
             self._models[metric_name] = IsolationForest(
                 contamination=self.contamination,
                 random_state=42,

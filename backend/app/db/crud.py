@@ -5,8 +5,16 @@ Database CRUD operations for all models.
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, desc, and_, Integer
 from app.db.models import (
-    Paper, Topic, User, Bookmark, QueryLog, Alert,
-    ModelVersion, PromptUsage, IngestionRun, DriftRecord
+    Paper,
+    Topic,
+    User,
+    Bookmark,
+    QueryLog,
+    Alert,
+    ModelVersion,
+    PromptUsage,
+    IngestionRun,
+    DriftRecord,
 )
 from datetime import datetime, timezone, timedelta
 from typing import Optional
@@ -15,6 +23,7 @@ from typing import Optional
 # ═══════════════════════════════════════════
 # PAPERS
 # ═══════════════════════════════════════════
+
 
 async def create_paper(db: AsyncSession, **kwargs) -> Paper:
     paper = Paper(**kwargs)
@@ -48,7 +57,7 @@ async def list_papers(
     source: Optional[str] = None,
     topic_id: Optional[int] = None,
     sort_by: str = "published_date",
-    order: str = "desc"
+    order: str = "desc",
 ) -> list[Paper]:
     query = select(Paper)
     if source:
@@ -72,7 +81,9 @@ async def count_papers(db: AsyncSession) -> int:
     return result.scalar() or 0
 
 
-async def search_papers_by_title(db: AsyncSession, query: str, limit: int = 20) -> list[Paper]:
+async def search_papers_by_title(
+    db: AsyncSession, query: str, limit: int = 20
+) -> list[Paper]:
     result = await db.execute(
         select(Paper)
         .where(Paper.title.ilike(f"%{query}%"))
@@ -89,7 +100,9 @@ async def update_paper_topic(db: AsyncSession, paper_id: int, topic_id: int):
         await db.flush()
 
 
-async def update_paper_novelty(db: AsyncSession, paper_id: int, score: float, novelty_type: str):
+async def update_paper_novelty(
+    db: AsyncSession, paper_id: int, score: float, novelty_type: str
+):
     paper = await get_paper(db, paper_id)
     if paper:
         paper.novelty_score = score
@@ -100,6 +113,7 @@ async def update_paper_novelty(db: AsyncSession, paper_id: int, score: float, no
 # ═══════════════════════════════════════════
 # TOPICS
 # ═══════════════════════════════════════════
+
 
 async def create_topic(db: AsyncSession, **kwargs) -> Topic:
     topic = Topic(**kwargs)
@@ -140,6 +154,7 @@ async def get_trending_topics(db: AsyncSession, limit: int = 10) -> list[Topic]:
 # USERS & BOOKMARKS
 # ═══════════════════════════════════════════
 
+
 async def get_or_create_user(db: AsyncSession, username: str) -> User:
     result = await db.execute(select(User).where(User.username == username))
     user = result.scalar_one_or_none()
@@ -170,7 +185,9 @@ async def remove_bookmark(db: AsyncSession, user_id: int, paper_id: int):
         await db.flush()
 
 
-async def get_user_bookmarks(db: AsyncSession, user_id: int, limit: int = 50) -> list[Paper]:
+async def get_user_bookmarks(
+    db: AsyncSession, user_id: int, limit: int = 50
+) -> list[Paper]:
     result = await db.execute(
         select(Paper)
         .join(Bookmark, Bookmark.paper_id == Paper.id)
@@ -184,6 +201,7 @@ async def get_user_bookmarks(db: AsyncSession, user_id: int, limit: int = 50) ->
 # ═══════════════════════════════════════════
 # QUERY LOGS
 # ═══════════════════════════════════════════
+
 
 async def log_query(db: AsyncSession, **kwargs) -> QueryLog:
     log = QueryLog(**kwargs)
@@ -251,6 +269,7 @@ async def get_cost_by_model(db: AsyncSession, hours: int = 24) -> list[dict]:
 # ALERTS
 # ═══════════════════════════════════════════
 
+
 async def create_alert(db: AsyncSession, **kwargs) -> Alert:
     alert = Alert(**kwargs)
     db.add(alert)
@@ -258,7 +277,9 @@ async def create_alert(db: AsyncSession, **kwargs) -> Alert:
     return alert
 
 
-async def get_recent_alerts(db: AsyncSession, limit: int = 20, include_resolved: bool = False) -> list[Alert]:
+async def get_recent_alerts(
+    db: AsyncSession, limit: int = 20, include_resolved: bool = False
+) -> list[Alert]:
     query = select(Alert).order_by(desc(Alert.created_at)).limit(limit)
     if not include_resolved:
         query = query.where(Alert.resolved.is_(False))
@@ -278,6 +299,7 @@ async def resolve_alert(db: AsyncSession, alert_id: int):
 # ═══════════════════════════════════════════
 # MODEL VERSIONS
 # ═══════════════════════════════════════════
+
 
 async def register_model_version(db: AsyncSession, **kwargs) -> ModelVersion:
     mv = ModelVersion(**kwargs)
@@ -306,6 +328,7 @@ async def get_active_model(db: AsyncSession, name: str) -> Optional[ModelVersion
 # ═══════════════════════════════════════════
 # INGESTION RUNS
 # ═══════════════════════════════════════════
+
 
 async def create_ingestion_run(db: AsyncSession, **kwargs) -> IngestionRun:
     run = IngestionRun(**kwargs)
@@ -355,6 +378,7 @@ async def get_ingestion_stats(db: AsyncSession, days: int = 7) -> dict:
 # DRIFT RECORDS
 # ═══════════════════════════════════════════
 
+
 async def create_drift_record(db: AsyncSession, **kwargs) -> DriftRecord:
     record = DriftRecord(**kwargs)
     db.add(record)
@@ -362,7 +386,9 @@ async def create_drift_record(db: AsyncSession, **kwargs) -> DriftRecord:
     return record
 
 
-async def get_recent_drift_records(db: AsyncSession, limit: int = 20) -> list[DriftRecord]:
+async def get_recent_drift_records(
+    db: AsyncSession, limit: int = 20
+) -> list[DriftRecord]:
     result = await db.execute(
         select(DriftRecord).order_by(desc(DriftRecord.detected_at)).limit(limit)
     )
@@ -372,6 +398,7 @@ async def get_recent_drift_records(db: AsyncSession, limit: int = 20) -> list[Dr
 # ═══════════════════════════════════════════
 # PROMPT USAGE
 # ═══════════════════════════════════════════
+
 
 async def log_prompt_usage(db: AsyncSession, **kwargs) -> PromptUsage:
     usage = PromptUsage(**kwargs)

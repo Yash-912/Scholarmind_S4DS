@@ -51,7 +51,10 @@ def test_dedup_detects_exact_doi():
 def test_dedup_detects_fuzzy_title():
     dedup = Deduplicator()
     existing = [{"title": "Deep Learning for Natural Language Processing", "doi": None}]
-    candidate = {"title": "Deep Learning for Natural Language Processing: A Survey", "doi": None}
+    candidate = {
+        "title": "Deep Learning for Natural Language Processing: A Survey",
+        "doi": None,
+    }
     is_dup = dedup.is_duplicate(candidate, existing)
     # Titles are similar enough to be flagged
     assert isinstance(is_dup, bool)

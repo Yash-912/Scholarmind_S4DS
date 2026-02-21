@@ -2,7 +2,14 @@
 Prometheus Metrics Collector — Defines all application metrics.
 """
 
-from prometheus_client import Counter, Histogram, Gauge, Info, generate_latest, CONTENT_TYPE_LATEST
+from prometheus_client import (
+    Counter,
+    Histogram,
+    Gauge,
+    Info,
+    generate_latest,
+    CONTENT_TYPE_LATEST,
+)
 
 
 # ═══ Counters ═══
@@ -105,11 +112,13 @@ app_info = Info(
     "scholarmind",
     "ScholarMind application info",
 )
-app_info.info({
-    "version": "1.0.0",
-    "embedding_model": "allenai/specter2",
-    "llm_provider": "groq",
-})
+app_info.info(
+    {
+        "version": "1.0.0",
+        "embedding_model": "allenai/specter2",
+        "llm_provider": "groq",
+    }
+)
 
 
 def get_metrics() -> bytes:

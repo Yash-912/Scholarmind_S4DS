@@ -6,7 +6,9 @@ from app.llmops.synthesizer import synthesizer
 
 @pytest.mark.asyncio
 async def test_synthesis_returns_answer():
-    result = await synthesizer.synthesize("What are recent advances in federated learning?")
+    result = await synthesizer.synthesize(
+        "What are recent advances in federated learning?"
+    )
     assert "answer" in result
     assert isinstance(result["answer"], str)
     assert len(result["answer"]) > 0

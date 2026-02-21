@@ -40,7 +40,10 @@ async def trigger_ingestion(
             max_arxiv=max_arxiv,
             max_pubmed=max_pubmed,
         )
-        return {"message": "Ingestion pipeline started in background", "sources": sources}
+        return {
+            "message": "Ingestion pipeline started in background",
+            "sources": sources,
+        }
 
     result = await run_ingestion_pipeline(
         sources=sources,
@@ -66,8 +69,12 @@ async def ingestion_status(db: AsyncSession = Depends(get_db)):
             "papers_duplicate": latest.papers_duplicate,
             "duration_seconds": latest.duration_seconds,
             "started_at": latest.started_at.isoformat(),
-            "completed_at": latest.completed_at.isoformat() if latest.completed_at else None,
-        } if latest else None,
+            "completed_at": latest.completed_at.isoformat()
+            if latest.completed_at
+            else None,
+        }
+        if latest
+        else None,
         "scheduler": scheduler,
     }
 

@@ -25,15 +25,29 @@ class RoutingDecision:
 
 # Keyword signals for complexity detection
 _COMPLEX_SIGNALS = [
-    "compare", "contrast", "versus", "differences between",
-    "gap analysis", "research gaps", "systematic review",
-    "meta-analysis", "comprehensive", "evolution of",
-    "how has", "timeline", "history of advances",
+    "compare",
+    "contrast",
+    "versus",
+    "differences between",
+    "gap analysis",
+    "research gaps",
+    "systematic review",
+    "meta-analysis",
+    "comprehensive",
+    "evolution of",
+    "how has",
+    "timeline",
+    "history of advances",
 ]
 
 _SIMPLE_SIGNALS = [
-    "what is", "define", "explain", "summarize",
-    "who wrote", "when was", "list",
+    "what is",
+    "define",
+    "explain",
+    "summarize",
+    "who wrote",
+    "when was",
+    "list",
 ]
 
 

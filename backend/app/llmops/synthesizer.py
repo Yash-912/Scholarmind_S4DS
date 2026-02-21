@@ -36,13 +36,32 @@ class Synthesizer:
         """
         q = query.lower()
 
-        if any(kw in q for kw in ["compare", "vs", "versus", "difference between", "contrast"]):
+        if any(
+            kw in q
+            for kw in ["compare", "vs", "versus", "difference between", "contrast"]
+        ):
             return "comparison"
-        if any(kw in q for kw in ["gap", "missing", "unexplored", "not studied", "what hasn't"]):
+        if any(
+            kw in q
+            for kw in ["gap", "missing", "unexplored", "not studied", "what hasn't"]
+        ):
             return "gap_analysis"
-        if any(kw in q for kw in ["summarize this paper", "summary of", "explain this paper"]):
+        if any(
+            kw in q
+            for kw in ["summarize this paper", "summary of", "explain this paper"]
+        ):
             return "summarize_single"
-        if any(kw in q for kw in ["latest", "advances", "overview", "state of", "what are", "how has"]):
+        if any(
+            kw in q
+            for kw in [
+                "latest",
+                "advances",
+                "overview",
+                "state of",
+                "what are",
+                "how has",
+            ]
+        ):
             return "synthesis"
 
         return "chat"
@@ -112,19 +131,26 @@ class Synthesizer:
 
         # ═══ Step 3: Re-rank ═══
         docs_for_rerank = [
-            {"text": p.text, "paper_id": p.paper_id, "title": p.title, "score": p.score, "metadata": p.metadata}
+            {
+                "text": p.text,
+                "paper_id": p.paper_id,
+                "title": p.title,
+                "score": p.score,
+                "metadata": p.metadata,
+            }
             for p in retrieved
         ]
 
         if settings.RERANKER_ENABLED:
-            reranked = reranker.rerank(query, docs_for_rerank, top_k=settings.MAX_CONTEXT_CHUNKS)
+            reranked = reranker.rerank(
+                query, docs_for_rerank, top_k=settings.MAX_CONTEXT_CHUNKS
+            )
         else:
-            reranked = docs_for_rerank[:settings.MAX_CONTEXT_CHUNKS]
+            reranked = docs_for_rerank[: settings.MAX_CONTEXT_CHUNKS]
 
         # ═══ Step 4: Generate Synthesis ═══
         papers_for_prompt = [
-            {"title": d["title"], "text": d["text"][:800]}
-            for d in reranked
+            {"title": d["title"], "text": d["text"][:800]} for d in reranked
         ]
 
         prompt, system_prompt, prompt_version = prompt_registry.render(

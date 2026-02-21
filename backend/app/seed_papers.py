@@ -9,11 +9,7 @@ import os
 
 # === Fix Windows DLL loading order (must be BEFORE any torch import) ===
 torch_lib_path = os.path.join(
-    os.path.dirname(sys.executable),
-    "Lib",
-    "site-packages",
-    "torch",
-    "lib"
+    os.path.dirname(sys.executable), "Lib", "site-packages", "torch", "lib"
 )
 if os.path.isdir(torch_lib_path):
     os.add_dll_directory(torch_lib_path)

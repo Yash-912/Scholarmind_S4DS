@@ -17,6 +17,7 @@ from app.config import settings
 @dataclass
 class CacheEntry:
     """A cached query-response pair."""
+
     query: str
     query_embedding: np.ndarray
     response: dict

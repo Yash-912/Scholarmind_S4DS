@@ -201,7 +201,10 @@ Provide a helpful, well-cited answer.""",
         if not template_data:
             raise ValueError(f"Unknown prompt template: {template_name}")
 
-        template = Template(template_data.get("template") or template_data.get("user_template", "{{ query }}"))
+        template = Template(
+            template_data.get("template")
+            or template_data.get("user_template", "{{ query }}")
+        )
         rendered = template.render(**kwargs)
         system_prompt = template_data.get("system", "")
         version = template_data.get("version", "1.0")

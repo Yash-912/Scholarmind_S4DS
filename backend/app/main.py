@@ -31,7 +31,18 @@ from app.mlops.registry import model_registry
 from app.aiops.health_monitor import health_monitor
 
 # Import route modules
-from app.api.routes import papers, synthesis, search, topics, feed, ingestion, mlops, aiops, health, ops
+from app.api.routes import (
+    papers,
+    synthesis,
+    search,
+    topics,
+    feed,
+    ingestion,
+    mlops,
+    aiops,
+    health,
+    ops,
+)
 from app.mlops.experiment_tracker import experiment_tracker
 from app.aiops.alerts import alert_engine
 
@@ -39,9 +50,9 @@ from app.aiops.alerts import alert_engine
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Application startup and shutdown lifecycle."""
-    print(f"\n{'='*60}")
+    print(f"\n{'=' * 60}")
     print(f"🚀 ScholarMind v{settings.APP_VERSION} Starting...")
-    print(f"{'='*60}\n")
+    print(f"{'=' * 60}\n")
 
     # 1. Initialize database
     await init_database()
@@ -75,10 +86,10 @@ async def lifespan(app: FastAPI):
     # 8. Start ingestion scheduler
     start_scheduler()
 
-    print(f"\n{'='*60}")
+    print(f"\n{'=' * 60}")
     print("✅ ScholarMind Ready — http://0.0.0.0:7860")
     print("📚 API Docs — http://0.0.0.0:7860/docs")
-    print(f"{'='*60}\n")
+    print(f"{'=' * 60}\n")
 
     yield
 

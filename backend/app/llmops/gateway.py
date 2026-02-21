@@ -95,10 +95,9 @@ class LLMGateway:
 
             # Calculate cost
             cost_rates = MODEL_COSTS.get(model, {"input": 0.5, "output": 0.5})
-            cost = (
-                (input_tokens / 1_000_000) * cost_rates["input"]
-                + (output_tokens / 1_000_000) * cost_rates["output"]
-            )
+            cost = (input_tokens / 1_000_000) * cost_rates["input"] + (
+                output_tokens / 1_000_000
+            ) * cost_rates["output"]
 
             elapsed = (time.time() - start) * 1000  # ms
 

@@ -25,12 +25,20 @@ async def semantic_search(
     Uses dense + sparse retrieval with optional re-ranking.
     """
     # Retrieve
-    results = await retriever.retrieve(query=q, top_k=top_k * 2 if use_reranker else top_k)
+    results = await retriever.retrieve(
+        query=q, top_k=top_k * 2 if use_reranker else top_k
+    )
 
     # Re-rank if enabled
     if use_reranker and settings.RERANKER_ENABLED and results:
         docs = [
-            {"text": p.text, "paper_id": p.paper_id, "title": p.title, "score": p.score, "metadata": p.metadata}
+            {
+                "text": p.text,
+                "paper_id": p.paper_id,
+                "title": p.title,
+                "score": p.score,
+                "metadata": p.metadata,
+            }
             for p in results
         ]
         reranked = reranker.rerank(q, docs, top_k=top_k)
@@ -42,7 +50,9 @@ async def semantic_search(
                     "title": d["title"],
                     "score": round(d.get("rerank_score", d.get("score", 0)), 4),
                     "source": d.get("metadata", {}).get("source", ""),
-                    "snippet": d["text"][:300] + "..." if len(d["text"]) > 300 else d["text"],
+                    "snippet": d["text"][:300] + "..."
+                    if len(d["text"]) > 300
+                    else d["text"],
                 }
                 for d in reranked
             ],

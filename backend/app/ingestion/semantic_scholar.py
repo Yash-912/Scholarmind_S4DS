@@ -13,6 +13,7 @@ S2_API_URL = "https://api.semanticscholar.org/graph/v1"
 @dataclass
 class S2Enrichment:
     """Enrichment data from Semantic Scholar."""
+
     citation_count: int = 0
     influential_citation_count: int = 0
     references: list[str] = None  # list of reference paper IDs
@@ -55,7 +56,9 @@ async def enrich_from_semantic_scholar(
     try:
         async with httpx.AsyncClient(timeout=15.0) as client:
             url = f"{S2_API_URL}/paper/{paper_id}"
-            params = {"fields": "citationCount,influentialCitationCount,references.paperId,tldr"}
+            params = {
+                "fields": "citationCount,influentialCitationCount,references.paperId,tldr"
+            }
             response = await client.get(url, params=params)
 
             if response.status_code == 404:
@@ -67,9 +70,7 @@ async def enrich_from_semantic_scholar(
 
             data = response.json()
             refs = [
-                r["paperId"]
-                for r in data.get("references", [])
-                if r.get("paperId")
+                r["paperId"] for r in data.get("references", []) if r.get("paperId")
             ]
 
             tldr_text = None
@@ -96,7 +97,7 @@ async def _search_by_title(title: str) -> Optional[S2Enrichment]:
             params = {
                 "query": title[:200],
                 "limit": 1,
-                "fields": "citationCount,influentialCitationCount,tldr"
+                "fields": "citationCount,influentialCitationCount,tldr",
             }
             response = await client.get(url, params=params)
 

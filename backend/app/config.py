@@ -23,7 +23,9 @@ class Settings(BaseSettings):
 
     # === Database ===
     SQLITE_URL: str = "sqlite+aiosqlite:///./data/scholarmind.db"
-    DATABASE_URL: Optional[str] = None  # Neon PostgreSQL — takes priority over SQLITE_URL
+    DATABASE_URL: Optional[str] = (
+        None  # Neon PostgreSQL — takes priority over SQLITE_URL
+    )
 
     @property
     def db_url(self) -> str:
@@ -38,6 +40,7 @@ class Settings(BaseSettings):
             # Strip query params that asyncpg doesn't support
             # (sslmode, channel_binding — handled via connect_args instead)
             from urllib.parse import urlparse, parse_qs, urlencode, urlunparse
+
             parsed = urlparse(url)
             params = parse_qs(parsed.query)
             params.pop("sslmode", None)
@@ -93,7 +96,16 @@ class Settings(BaseSettings):
 
     class Config:
         # Look for .env in current dir first, then parent (project root)
-        env_file = ".env" if os.path.exists(".env") else os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), ".env")
+        env_file = (
+            ".env"
+            if os.path.exists(".env")
+            else os.path.join(
+                os.path.dirname(
+                    os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+                ),
+                ".env",
+            )
+        )
         env_file_encoding = "utf-8"
         case_sensitive = True
         extra = "ignore"  # Ignore frontend vars like NEXT_PUBLIC_API_URL

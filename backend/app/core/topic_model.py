@@ -89,12 +89,14 @@ class TopicModeler:
                 self._topic_names[tid] = name
                 self._topic_keywords[tid] = keywords
 
-                topic_data.append({
-                    "topic_id": tid,
-                    "name": name,
-                    "keywords": keywords,
-                    "paper_count": row["Count"],
-                })
+                topic_data.append(
+                    {
+                        "topic_id": tid,
+                        "name": name,
+                        "keywords": keywords,
+                        "paper_count": row["Count"],
+                    }
+                )
 
             self._fitted = True
             elapsed = time.time() - start
@@ -129,9 +131,9 @@ class TopicModeler:
             return []
 
         try:
-            hierarchy = self.model.get_topic_tree(self.model.hierarchical_topics(
-                self.model._get_topic_model_data()
-            ))
+            hierarchy = self.model.get_topic_tree(
+                self.model.hierarchical_topics(self.model._get_topic_model_data())
+            )
             return hierarchy
         except Exception:
             return []

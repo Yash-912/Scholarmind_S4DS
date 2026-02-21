@@ -1,4 +1,5 @@
 """Minimal test: insert one paper into Neon."""
+
 import asyncio
 import sys
 import os
@@ -8,6 +9,7 @@ import logging
 logging.basicConfig(level=logging.DEBUG, filename="neon_debug.log", filemode="w")
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
 
 async def main():
     try:
@@ -38,6 +40,7 @@ async def main():
         print(msg[:3000])
         with open("neon_error.txt", "w") as f:
             f.write(msg)
+
 
 if __name__ == "__main__":
     asyncio.run(main())

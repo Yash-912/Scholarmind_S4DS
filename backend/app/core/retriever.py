@@ -15,6 +15,7 @@ from app.core.vector_store import vector_store
 @dataclass
 class RetrievedPaper:
     """A paper retrieved by the retrieval system."""
+
     paper_id: str
     title: str
     text: str
@@ -102,7 +103,11 @@ class HybridRetriever:
         dense_ranked = []
         if dense_results and dense_results["ids"] and dense_results["ids"][0]:
             for i, doc_id in enumerate(dense_results["ids"][0]):
-                distance = dense_results["distances"][0][i] if dense_results["distances"] else 0
+                distance = (
+                    dense_results["distances"][0][i]
+                    if dense_results["distances"]
+                    else 0
+                )
                 score = 1 - distance  # Convert distance to similarity
                 dense_ranked.append((doc_id, score))
 
@@ -115,13 +120,19 @@ class HybridRetriever:
         fused_scores = {}
 
         for rank, (doc_id, _) in enumerate(dense_ranked):
-            fused_scores[doc_id] = fused_scores.get(doc_id, 0) + 1.0 / (self.rrf_k + rank + 1)
+            fused_scores[doc_id] = fused_scores.get(doc_id, 0) + 1.0 / (
+                self.rrf_k + rank + 1
+            )
 
         for rank, (doc_id, _) in enumerate(sparse_ranked):
-            fused_scores[doc_id] = fused_scores.get(doc_id, 0) + 1.0 / (self.rrf_k + rank + 1)
+            fused_scores[doc_id] = fused_scores.get(doc_id, 0) + 1.0 / (
+                self.rrf_k + rank + 1
+            )
 
         # Sort by fused score
-        sorted_ids = sorted(fused_scores.items(), key=lambda x: x[1], reverse=True)[:top_k]
+        sorted_ids = sorted(fused_scores.items(), key=lambda x: x[1], reverse=True)[
+            :top_k
+        ]
 
         # Build result objects
         results = []
@@ -130,24 +141,32 @@ class HybridRetriever:
         if dense_results and dense_results["ids"] and dense_results["ids"][0]:
             for i, doc_id in enumerate(dense_results["ids"][0]):
                 dense_lookup[doc_id] = {
-                    "document": dense_results["documents"][0][i] if dense_results["documents"] else "",
-                    "metadata": dense_results["metadatas"][0][i] if dense_results["metadatas"] else {},
+                    "document": dense_results["documents"][0][i]
+                    if dense_results["documents"]
+                    else "",
+                    "metadata": dense_results["metadatas"][0][i]
+                    if dense_results["metadatas"]
+                    else {},
                 }
 
         for doc_id, score in sorted_ids:
             info = dense_lookup.get(doc_id, {})
             metadata = info.get("metadata", {})
-            results.append(RetrievedPaper(
-                paper_id=doc_id,
-                title=metadata.get("title", ""),
-                text=info.get("document", ""),
-                score=score,
-                source=metadata.get("source", ""),
-                metadata=metadata,
-            ))
+            results.append(
+                RetrievedPaper(
+                    paper_id=doc_id,
+                    title=metadata.get("title", ""),
+                    text=info.get("document", ""),
+                    score=score,
+                    source=metadata.get("source", ""),
+                    metadata=metadata,
+                )
+            )
 
         elapsed = time.time() - start
-        print(f"🔍 Hybrid retrieval: {len(results)} results in {elapsed*1000:.0f}ms (dense={len(dense_ranked)}, sparse={len(sparse_ranked)})")
+        print(
+            f"🔍 Hybrid retrieval: {len(results)} results in {elapsed * 1000:.0f}ms (dense={len(dense_ranked)}, sparse={len(sparse_ranked)})"
+        )
 
         return results
 

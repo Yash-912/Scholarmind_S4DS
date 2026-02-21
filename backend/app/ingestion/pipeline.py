@@ -59,9 +59,9 @@ async def run_ingestion_pipeline(
         run_id = run.id
         await db.commit()
 
-    print(f"\n{'='*60}")
+    print(f"\n{'=' * 60}")
     print(f"🚀 INGESTION PIPELINE STARTED — Sources: {sources}")
-    print(f"{'='*60}\n")
+    print(f"{'=' * 60}\n")
 
     # ═══ Step 1: Scrape Papers ═══
     raw_papers: list[RawPaper] = []
@@ -93,7 +93,8 @@ async def run_ingestion_pipeline(
         print("⚠️ No papers to process")
         async with async_session() as db:
             await crud.complete_ingestion_run(
-                db, run_id,
+                db,
+                run_id,
                 status="completed",
                 **stats,
                 duration_seconds=time.time() - start_time,
@@ -137,7 +138,9 @@ async def run_ingestion_pipeline(
 
         await db.commit()
 
-    print(f"\n📊 New papers: {stats['papers_new']}, Duplicates: {stats['papers_duplicate']}, Failed: {stats['papers_failed']}")
+    print(
+        f"\n📊 New papers: {stats['papers_new']}, Duplicates: {stats['papers_duplicate']}, Failed: {stats['papers_failed']}"
+    )
 
     # ═══ Step 3: Generate Embeddings ═══
     if new_papers:
@@ -161,7 +164,9 @@ async def run_ingestion_pipeline(
                 "source": p["source"],
                 "source_id": p["source_id"],
                 "title": p["title"][:500],
-                "published_date": p["published_date"].isoformat() if p["published_date"] else "",
+                "published_date": p["published_date"].isoformat()
+                if p["published_date"]
+                else "",
                 "categories": ",".join(p["categories"][:5]),
             }
             for paper, p in new_papers
@@ -215,7 +220,8 @@ async def run_ingestion_pipeline(
 
     async with async_session() as db:
         await crud.complete_ingestion_run(
-            db, run_id,
+            db,
+            run_id,
             status="completed",
             papers_found=stats["papers_found"],
             papers_new=stats["papers_new"],
@@ -225,10 +231,12 @@ async def run_ingestion_pipeline(
         )
         await db.commit()
 
-    print(f"\n{'='*60}")
+    print(f"\n{'=' * 60}")
     print(f"✅ PIPELINE COMPLETE in {duration:.1f}s")
-    print(f"   Found: {stats['papers_found']} | New: {stats['papers_new']} | Dupes: {stats['papers_duplicate']} | Failed: {stats['papers_failed']}")
+    print(
+        f"   Found: {stats['papers_found']} | New: {stats['papers_new']} | Dupes: {stats['papers_duplicate']} | Failed: {stats['papers_failed']}"
+    )
     print(f"   Enriched: {stats['papers_enriched']} | Vectors: {vector_store.count}")
-    print(f"{'='*60}\n")
+    print(f"{'=' * 60}\n")
 
     return stats

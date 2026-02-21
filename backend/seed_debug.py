@@ -1,4 +1,5 @@
 """Debug seeding with full traceback."""
+
 import asyncio
 import sys
 import os
@@ -6,6 +7,7 @@ import traceback
 
 os.environ["PYTHONIOENCODING"] = "utf-8"
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
 
 async def main():
     try:
@@ -36,6 +38,7 @@ async def main():
         # Run ingestion
         print("Running ingestion...")
         from app.ingestion.pipeline import run_ingestion_pipeline
+
         result = await run_ingestion_pipeline(
             sources=["arxiv", "pubmed"],
             max_arxiv=30,
@@ -45,6 +48,7 @@ async def main():
     except Exception as e:
         print(f"\nERROR: {type(e).__name__}: {e}")
         traceback.print_exc()
+
 
 if __name__ == "__main__":
     asyncio.run(main())

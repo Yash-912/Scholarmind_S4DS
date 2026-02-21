@@ -78,7 +78,9 @@ async def topic_papers(
                 "title": p.title,
                 "abstract": p.abstract[:200] + "...",
                 "authors": p.authors,
-                "published_date": p.published_date.isoformat() if p.published_date else None,
+                "published_date": p.published_date.isoformat()
+                if p.published_date
+                else None,
             }
             for p in papers
         ],
