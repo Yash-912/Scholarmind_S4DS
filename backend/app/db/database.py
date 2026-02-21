@@ -30,6 +30,12 @@ else:
     engine_kwargs["pool_size"] = 5
     engine_kwargs["max_overflow"] = 10
     engine_kwargs["pool_pre_ping"] = True  # Test connections before use
+    # Neon requires SSL — asyncpg uses ssl=True in connect_args
+    import ssl as _ssl
+    ssl_ctx = _ssl.create_default_context()
+    ssl_ctx.check_hostname = False
+    ssl_ctx.verify_mode = _ssl.CERT_NONE
+    engine_kwargs["connect_args"] = {"ssl": ssl_ctx}
 
 engine = create_async_engine(db_url, **engine_kwargs)
 

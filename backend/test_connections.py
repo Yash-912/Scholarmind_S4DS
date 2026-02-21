@@ -3,32 +3,35 @@ import asyncio
 import sys
 import os
 
-# Add parent dir for imports
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 async def test_neon():
-    """Test Neon PostgreSQL connection."""
     print("=" * 50)
     print("Testing Neon PostgreSQL...")
     print("=" * 50)
     
     from app.config import settings
     db_url = settings.db_url
-    print(f"  URL: {db_url[:50]}...")
+    print(f"  URL: {db_url[:60]}...")
+    
+    import ssl
+    ssl_ctx = ssl.create_default_context()
+    ssl_ctx.check_hostname = False
+    ssl_ctx.verify_mode = ssl.CERT_NONE
     
     from sqlalchemy.ext.asyncio import create_async_engine
-    engine = create_async_engine(db_url, pool_pre_ping=True)
+    from sqlalchemy import text
+    engine = create_async_engine(db_url, connect_args={"ssl": ssl_ctx})
     
     async with engine.connect() as conn:
-        result = await conn.execute(__import__('sqlalchemy').text("SELECT version()"))
+        result = await conn.execute(text("SELECT version()"))
         version = result.scalar()
-        print(f"  ✅ Connected! PostgreSQL version: {version[:60]}")
+        print(f"  ✅ Connected! {version[:70]}")
     
     await engine.dispose()
     print()
 
 def test_redis():
-    """Test Upstash Redis connection."""
     print("=" * 50)
     print("Testing Upstash Redis...")
     print("=" * 50)
@@ -40,31 +43,29 @@ def test_redis():
         print("  ⚠️ REDIS_URL not set, skipping")
         return
     
-    print(f"  URL: {redis_url[:40]}...")
+    print(f"  URL: {redis_url[:45]}...")
     
     import redis as r
     client = r.from_url(redis_url, decode_responses=True)
     
-    # Test SET
     client.set("scholarmind:test", "hello_from_scholarmind")
     val = client.get("scholarmind:test")
     print(f"  ✅ SET/GET working: {val}")
     
-    # Test PING
     pong = client.ping()
     print(f"  ✅ PING: {pong}")
     
-    # Cleanup
     client.delete("scholarmind:test")
     client.close()
     print()
 
 async def test_create_tables():
-    """Test creating tables in Neon."""
     print("=" * 50)
     print("Creating tables in Neon PostgreSQL...")
     print("=" * 50)
     
+    # Import models so Base.metadata knows about them
+    from app.db import models  # noqa
     from app.db.database import init_database
     await init_database()
     print()
