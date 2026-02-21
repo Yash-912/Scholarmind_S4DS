@@ -6,7 +6,6 @@ import json
 import os
 from jinja2 import Template
 from typing import Optional
-from datetime import datetime
 
 
 # Prompt template directory

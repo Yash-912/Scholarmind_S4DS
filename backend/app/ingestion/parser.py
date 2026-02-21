@@ -3,7 +3,6 @@ Parser — Normalize raw scraper data into unified paper schema.
 """
 
 from app.ingestion.arxiv_scraper import RawPaper
-from typing import Optional
 
 
 def normalize_paper(raw: RawPaper) -> dict:

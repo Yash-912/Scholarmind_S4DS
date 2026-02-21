@@ -1,6 +1,5 @@
 """Tests for BERTopic — verifies coherent clusters."""
 
-import pytest
 from app.core.topic_model import TopicModeler
 
 

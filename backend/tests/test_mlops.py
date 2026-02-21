@@ -1,6 +1,5 @@
 """Tests for MLOps — model registry, drift detection, quality gate."""
 
-import pytest
 from app.mlops.registry import model_registry
 from app.mlops.drift_detector import drift_detector
 from app.mlops.quality_gate import quality_gate

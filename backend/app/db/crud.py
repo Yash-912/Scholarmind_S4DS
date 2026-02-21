@@ -261,7 +261,7 @@ async def create_alert(db: AsyncSession, **kwargs) -> Alert:
 async def get_recent_alerts(db: AsyncSession, limit: int = 20, include_resolved: bool = False) -> list[Alert]:
     query = select(Alert).order_by(desc(Alert.created_at)).limit(limit)
     if not include_resolved:
-        query = query.where(Alert.resolved == False)
+        query = query.where(Alert.resolved.is_(False))
     result = await db.execute(query)
     return list(result.scalars().all())
 
@@ -296,7 +296,7 @@ async def list_model_versions(db: AsyncSession) -> list[ModelVersion]:
 async def get_active_model(db: AsyncSession, name: str) -> Optional[ModelVersion]:
     result = await db.execute(
         select(ModelVersion)
-        .where(and_(ModelVersion.name == name, ModelVersion.is_active == True))
+        .where(and_(ModelVersion.name == name, ModelVersion.is_active.is_(True)))
         .order_by(desc(ModelVersion.registered_at))
         .limit(1)
     )

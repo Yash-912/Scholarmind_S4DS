@@ -4,7 +4,7 @@ Experiment Tracker — MLflow experiment logging wrapper.
 
 import mlflow
 import time
-from typing import Any, Optional
+from typing import Any
 from app.config import settings
 
 

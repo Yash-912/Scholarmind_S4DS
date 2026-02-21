@@ -6,7 +6,7 @@ Connects retrieval → re-ranking → LLM generation → hallucination checking.
 import time
 from typing import Optional
 
-from app.core.retriever import retriever, RetrievedPaper
+from app.core.retriever import retriever
 from app.core.reranker import reranker
 from app.llmops.gateway import llm_gateway
 from app.llmops.prompt_registry import prompt_registry

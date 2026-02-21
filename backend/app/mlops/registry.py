@@ -5,7 +5,6 @@ Wraps MLflow for experiment tracking.
 
 import mlflow
 import os
-import time
 from typing import Optional
 from app.config import settings
 from app.db.database import async_session

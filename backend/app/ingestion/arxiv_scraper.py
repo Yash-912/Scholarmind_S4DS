@@ -5,7 +5,6 @@ Uses the arXiv API (Atom feed) with feedparser.
 
 import feedparser
 import httpx
-import asyncio
 from datetime import datetime
 from typing import Optional
 from dataclasses import dataclass, field

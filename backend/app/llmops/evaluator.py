@@ -5,10 +5,8 @@ Measures faithfulness, answer relevance, and context relevance.
 
 import json
 import asyncio
-from dataclasses import dataclass, field, asdict
-from typing import Optional
+from dataclasses import dataclass, field
 from app.llmops.gateway import llm_gateway
-from app.config import settings
 
 
 @dataclass

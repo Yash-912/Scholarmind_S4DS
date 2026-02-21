@@ -1,6 +1,5 @@
 """Tests for LLMOps — prompt registry, routing, cost tracking."""
 
-import pytest
 from app.llmops.prompt_registry import prompt_registry
 from app.llmops.router import query_router, QueryComplexity
 from app.llmops.cost_tracker import cost_tracker

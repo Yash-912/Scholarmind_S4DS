@@ -3,7 +3,6 @@ Model Monitor — Continuous monitoring of deployed model performance.
 Tracks throughput, latency, and quality signals over time.
 """
 
-import time
 from collections import deque
 from dataclasses import dataclass
 from datetime import datetime, timezone

@@ -1,6 +1,5 @@
 """Tests for SPECTER2 embeddings — verifies correct dimensionality."""
 
-import pytest
 import numpy as np
 from app.core.embeddings import embedding_service
 

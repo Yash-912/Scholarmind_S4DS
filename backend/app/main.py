@@ -23,7 +23,6 @@ import time
 
 from app.config import settings
 from app.db.database import init_database
-from app.core.embeddings import embedding_service
 from app.core.vector_store import vector_store
 from app.llmops.gateway import llm_gateway
 from app.llmops.prompt_registry import prompt_registry
@@ -77,8 +76,8 @@ async def lifespan(app: FastAPI):
     start_scheduler()
 
     print(f"\n{'='*60}")
-    print(f"✅ ScholarMind Ready — http://0.0.0.0:7860")
-    print(f"📚 API Docs — http://0.0.0.0:7860/docs")
+    print("✅ ScholarMind Ready — http://0.0.0.0:7860")
+    print("📚 API Docs — http://0.0.0.0:7860/docs")
     print(f"{'='*60}\n")
 
     yield

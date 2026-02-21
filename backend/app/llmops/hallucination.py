@@ -3,7 +3,6 @@ Hallucination Checker — Verifies LLM claims against retrieved source papers.
 """
 
 import re
-from typing import Optional
 from app.llmops.gateway import llm_gateway
 
 

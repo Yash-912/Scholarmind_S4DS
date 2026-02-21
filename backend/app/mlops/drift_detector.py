@@ -3,13 +3,9 @@ Drift Detector — Detects data drift and concept drift in the paper stream.
 """
 
 import numpy as np
-from datetime import datetime, timezone, timedelta
-from typing import Optional
 
 from app.db.database import async_session
 from app.db import crud
-from app.core.embeddings import embedding_service
-from app.core.vector_store import vector_store
 
 
 class DriftDetector:

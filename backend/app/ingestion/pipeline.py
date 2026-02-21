@@ -4,8 +4,6 @@ Ingestion Pipeline — Orchestrates the full scrape → dedup → embed → stor
 
 import time
 import asyncio
-from datetime import datetime, timezone
-from typing import Optional
 
 from app.ingestion.arxiv_scraper import scrape_arxiv, RawPaper
 from app.ingestion.pubmed_scraper import scrape_pubmed

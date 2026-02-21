@@ -5,7 +5,6 @@ PubMed API Scraper — Fetches real papers from PubMed E-utilities.
 import httpx
 import xml.etree.ElementTree as ET
 from datetime import datetime
-from typing import Optional
 from app.ingestion.arxiv_scraper import RawPaper
 
 
@@ -138,7 +137,7 @@ async def scrape_pubmed(
                     mesh_terms.append(mesh.text)
 
             # Journal name
-            journal = art.findtext(".//Journal/Title", "")
+            _journal = art.findtext(".//Journal/Title", "")
 
             paper = RawPaper(
                 title=title,

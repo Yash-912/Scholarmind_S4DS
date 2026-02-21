@@ -39,7 +39,7 @@ async def main():
     topics = modeler.fit(embeddings, texts)
     duration = time.time() - start
 
-    print(f"\n=== Topic Model Results ===")
+    print("\n=== Topic Model Results ===")
     print(f"  Topics discovered: {len(topics)}")
     print(f"  Training time: {duration:.1f}s")
 

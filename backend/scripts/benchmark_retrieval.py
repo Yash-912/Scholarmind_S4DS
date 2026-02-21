@@ -11,7 +11,6 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from app.core.retriever import retriever
-from app.mlops.experiment_tracker import experiment_tracker
 
 
 BENCHMARK_QUERIES = [
@@ -54,10 +53,10 @@ async def main():
             "results_count": len(results),
         })
 
-    avg_no_rerank = sum(l["no_rerank_ms"] for l in latencies) / len(latencies)
-    avg_reranked = sum(l["reranked_ms"] for l in latencies) / len(latencies)
+    avg_no_rerank = sum(entry["no_rerank_ms"] for entry in latencies) / len(latencies)
+    avg_reranked = sum(entry["reranked_ms"] for entry in latencies) / len(latencies)
 
-    print(f"\n=== Benchmark Summary ===")
+    print("\n=== Benchmark Summary ===")
     print(f"  Avg latency (no rerank): {avg_no_rerank:.0f}ms")
     print(f"  Avg latency (reranked):  {avg_reranked:.0f}ms")
     print(f"  Reranker overhead:       {avg_reranked - avg_no_rerank:.0f}ms")

@@ -1,7 +1,6 @@
 """Tests for the ingestion pipeline — verifies scrapers return real data."""
 
 import pytest
-import pytest_asyncio
 from app.ingestion.arxiv_scraper import ArxivScraper
 from app.ingestion.pubmed_scraper import PubMedScraper
 from app.ingestion.dedup import Deduplicator

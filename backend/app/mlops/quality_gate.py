@@ -4,7 +4,6 @@ Compares current metrics against baseline thresholds.
 """
 
 from dataclasses import dataclass
-from typing import Optional
 
 
 @dataclass

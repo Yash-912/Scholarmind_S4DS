@@ -59,7 +59,7 @@ async def seed():
         max_pubmed=20,
     )
 
-    print(f"\n🌱 Seeding complete!")
+    print("\n🌱 Seeding complete!")
     print(f"   Papers ingested: {result.get('papers_new', 0)}")
     print(f"   Vectors stored: {vector_store.count}")
 

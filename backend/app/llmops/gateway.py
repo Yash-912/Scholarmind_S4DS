@@ -6,7 +6,7 @@ Tracks usage and costs.
 
 import time
 from groq import AsyncGroq
-from typing import Optional, AsyncIterator
+from typing import AsyncIterator
 from app.config import settings
 
 
@@ -121,7 +121,7 @@ class LLMGateway:
 
             # Fallback to smaller model
             if model != "llama-3.1-8b-instant":
-                print(f"♻️ Falling back to llama-3.1-8b-instant")
+                print("♻️ Falling back to llama-3.1-8b-instant")
                 return await self.generate(
                     prompt=prompt,
                     model="llama-3.1-8b-instant",
