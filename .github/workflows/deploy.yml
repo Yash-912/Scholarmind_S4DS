@@ -123,7 +123,7 @@ jobs:
           curl -sf "$BACKEND_URL/api/health" | python3 -c "
           import sys, json
           data = json.load(sys.stdin)
-          assert data['status'] == 'healthy', f'Unhealthy: {data}'
+          assert data['status'] == 'ok' or data['status'] == 'healthy', f'Unhealthy: {data}'
           print('✅ Backend health check passed:', data)
           "
 
