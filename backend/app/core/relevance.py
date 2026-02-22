@@ -56,7 +56,7 @@ class RelevanceScorer:
 
         return profile
 
-    def score_papers(
+    async def score_papers(
         self,
         user_profile: np.ndarray,
         paper_ids: list[str] = None,
@@ -77,7 +77,7 @@ class RelevanceScorer:
             return []
 
         # Use vector store to find similar papers
-        results = vector_store.search(
+        results = await vector_store.search(
             query_embedding=user_profile,
             top_k=top_k,
         )
@@ -102,7 +102,7 @@ class RelevanceScorer:
 
         return scored
 
-    def get_personalized_feed(
+    async def get_personalized_feed(
         self,
         interests: list[str],
         bookmarked_texts: list[str] = None,
@@ -113,7 +113,7 @@ class RelevanceScorer:
         Convenience method combining profile computation and scoring.
         """
         profile = self.compute_user_profile(interests, bookmarked_texts)
-        return self.score_papers(profile, top_k=top_k)
+        return await self.score_papers(profile, top_k=top_k)
 
 
 # Global singleton

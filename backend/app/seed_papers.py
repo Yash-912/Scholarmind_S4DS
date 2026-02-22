@@ -32,7 +32,7 @@ async def seed():
 
     # Initialize
     await init_database()
-    vector_store.initialize()
+    await vector_store.initialize()
     llm_gateway.initialize()
     model_registry.initialize()
 
@@ -57,7 +57,8 @@ async def seed():
 
     print("\n🌱 Seeding complete!")
     print(f"   Papers ingested: {result.get('papers_new', 0)}")
-    print(f"   Vectors stored: {vector_store.count}")
+    vc = await vector_store.count()
+    print(f"   Vectors stored: {vc}")
 
     return result
 

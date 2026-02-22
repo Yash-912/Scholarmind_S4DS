@@ -172,7 +172,7 @@ async def run_ingestion_pipeline(
             for paper, p in new_papers
         ]
 
-        vector_store.add_papers(
+        await vector_store.add_papers(
             ids=ids,
             embeddings=embeddings,
             documents=documents,
@@ -236,7 +236,8 @@ async def run_ingestion_pipeline(
     print(
         f"   Found: {stats['papers_found']} | New: {stats['papers_new']} | Dupes: {stats['papers_duplicate']} | Failed: {stats['papers_failed']}"
     )
-    print(f"   Enriched: {stats['papers_enriched']} | Vectors: {vector_store.count}")
+    vc = await vector_store.count()
+    print(f"   Enriched: {stats['papers_enriched']} | Vectors: {vc}")
     print(f"{'=' * 60}\n")
 
     return stats

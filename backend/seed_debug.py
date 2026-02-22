@@ -19,7 +19,7 @@ async def main():
 
         print("Seeding ScholarMind database...")
         await init_database()
-        vector_store.initialize()
+        await vector_store.initialize()
         llm_gateway.initialize()
         model_registry.initialize()
         embedding_service.load()

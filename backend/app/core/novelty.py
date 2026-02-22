@@ -15,7 +15,7 @@ class NoveltyDetector:
     3. Citation velocity (if available)
     """
 
-    def score_novelty(
+    async def score_novelty(
         self,
         title: str,
         abstract: str,
@@ -31,7 +31,7 @@ class NoveltyDetector:
         embedding = embedding_service.embed_query(text)
 
         # Get nearest neighbors from vector store
-        results = vector_store.search(embedding, top_k=20)
+        results = await vector_store.search(embedding, top_k=20)
 
         if not results or not results["ids"] or not results["ids"][0]:
             return {
@@ -117,14 +117,14 @@ class NoveltyDetector:
             f"Average distance from {n_neighbors} nearest papers: {avg_dist:.3f}."
         )
 
-    def batch_score(
+    async def batch_score(
         self,
         papers: list[dict],
     ) -> list[dict]:
         """Score novelty for multiple papers."""
         results = []
         for paper in papers:
-            score = self.score_novelty(
+            score = await self.score_novelty(
                 title=paper.get("title", ""),
                 abstract=paper.get("abstract", ""),
                 categories=paper.get("categories", []),

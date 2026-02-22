@@ -75,7 +75,7 @@ async def lifespan(app: FastAPI):
     os.makedirs("data/cache", exist_ok=True)
 
     # 3. Initialize vector store
-    vector_store.initialize()
+    await vector_store.initialize()
 
     # 4. Initialize LLM gateway
     llm_gateway.initialize()

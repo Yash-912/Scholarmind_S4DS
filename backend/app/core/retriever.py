@@ -98,7 +98,7 @@ class HybridRetriever:
 
         # 1. Dense retrieval
         query_embedding = embedding_service.embed_query(query)
-        dense_results = vector_store.search(query_embedding, top_k=dense_top_k)
+        dense_results = await vector_store.search(query_embedding, top_k=dense_top_k)
 
         dense_ranked = []
         if dense_results and dense_results["ids"] and dense_results["ids"][0]:

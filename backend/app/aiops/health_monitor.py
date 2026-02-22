@@ -32,7 +32,7 @@ class HealthMonitor:
         metrics = {
             "timestamp": datetime.now(timezone.utc).isoformat(),
             "system": self._get_system_metrics(),
-            "vector_store": self._get_vector_store_metrics(),
+            "vector_store": await self._get_vector_store_metrics(),
             "llm": self._get_llm_metrics(),
             "cache": self._get_cache_metrics(),
             "cost": self._get_cost_metrics(),
@@ -61,10 +61,10 @@ class HealthMonitor:
                 "disk_usage_percent": 0,
             }
 
-    def _get_vector_store_metrics(self) -> dict:
+    async def _get_vector_store_metrics(self) -> dict:
         """Get vector store health metrics."""
         try:
-            stats = vector_store.get_stats()
+            stats = await vector_store.get_stats()
             return {
                 "total_vectors": stats["total_vectors"],
                 "status": "healthy" if stats["total_vectors"] >= 0 else "unhealthy",
