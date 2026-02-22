@@ -20,7 +20,7 @@ def test_prompt_registry_get_template():
 
 
 @pytest.mark.asyncio
-@patch("app.llmops.router.llm_gateway.generate", new_callable=AsyncMock)
+@patch("app.llmops.gateway.llm_gateway.generate", new_callable=AsyncMock)
 async def test_router_classifies_simple(mock_generate):
     mock_generate.return_value = {"text": "SIMPLE"}
     decision = await query_router.route("What is attention?")
@@ -28,7 +28,7 @@ async def test_router_classifies_simple(mock_generate):
 
 
 @pytest.mark.asyncio
-@patch("app.llmops.router.llm_gateway.generate", new_callable=AsyncMock)
+@patch("app.llmops.gateway.llm_gateway.generate", new_callable=AsyncMock)
 async def test_router_classifies_complex(mock_generate):
     mock_generate.return_value = {"text": "COMPLEX"}
     decision = await query_router.route(
@@ -38,7 +38,7 @@ async def test_router_classifies_complex(mock_generate):
 
 
 @pytest.mark.asyncio
-@patch("app.llmops.router.llm_gateway.generate", new_callable=AsyncMock)
+@patch("app.llmops.gateway.llm_gateway.generate", new_callable=AsyncMock)
 async def test_router_returns_model(mock_generate):
     mock_generate.return_value = {"text": "STANDARD"}
     decision = await query_router.route("Explain BERT")
