@@ -63,7 +63,6 @@ jobs:
         env:
           GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
           SQLITE_URL: "sqlite+aiosqlite:///./data/test.db"
         run: |
           mkdir -p data
