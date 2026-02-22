@@ -26,7 +26,7 @@ async def get_feed(
 
     interests = user.interests or ["machine learning", "artificial intelligence"]
 
-    feed = relevance_scorer.get_personalized_feed(
+    feed = await relevance_scorer.get_personalized_feed(
         interests=interests,
         bookmarked_texts=bookmarked_texts,
         top_k=20,
