@@ -138,6 +138,37 @@ class TopicModeler:
         except Exception:
             return []
 
+    def get_topics(self) -> list[dict]:
+        """Return discovered topics (empty list if model not fitted)."""
+        if not self._fitted or self.model is None:
+            return []
+
+        try:
+            topics = []
+            for tid, name in self._topic_names.items():
+                topics.append(
+                    {
+                        "topic_id": tid,
+                        "name": name,
+                        "keywords": self._topic_keywords.get(tid, []),
+                    }
+                )
+            return topics
+        except Exception:
+            return []
+
+    def get_trending(self) -> list[dict]:
+        """Return trending topics (empty list if model not fitted)."""
+        if not self._fitted or self.model is None:
+            return []
+
+        try:
+            # Trending = topics sorted by recency/count
+            topics = self.get_topics()
+            return topics[:10]  # Top 10 as "trending"
+        except Exception:
+            return []
+
     @property
     def is_fitted(self) -> bool:
         return self._fitted

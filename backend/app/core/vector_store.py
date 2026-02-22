@@ -105,9 +105,19 @@ class VectorStore:
 
         start = time.time()
 
+        # Guard: empty collection → return empty results immediately
+        doc_count = self.collection.count()
+        if doc_count == 0:
+            return {
+                "ids": [[]],
+                "documents": [[]],
+                "distances": [[]],
+                "metadatas": [[]],
+            }
+
         kwargs = {
             "query_embeddings": [query_embedding],
-            "n_results": min(top_k, self.collection.count() or 1),
+            "n_results": min(top_k, doc_count),
             "include": ["documents", "metadatas", "distances"],
         }
         if where:

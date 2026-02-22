@@ -20,7 +20,7 @@ async def health_check():
 @router.get("/ready")
 async def readiness_check():
     """Readiness check — verifies all components are initialized."""
-    metrics = health_monitor.collect_metrics()
+    metrics = await health_monitor.collect_metrics()
     system = metrics.get("system", {})
 
     ready = True
@@ -52,7 +52,7 @@ async def readiness_check():
 @router.get("/components")
 async def component_health():
     """Detailed health for each component."""
-    metrics = health_monitor.collect_metrics()
+    metrics = await health_monitor.collect_metrics()
     return metrics
 
 

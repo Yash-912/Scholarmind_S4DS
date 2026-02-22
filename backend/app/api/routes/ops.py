@@ -24,7 +24,7 @@ router = APIRouter(prefix="/ops", tags=["ops"])
 async def ops_models():
     """Get all registered models and their monitoring data."""
     return {
-        "registry": model_registry.list_models(),
+        "registry": await model_registry.list_models(),
         "monitoring": model_monitor.get_all_models(),
     }
 
@@ -38,7 +38,7 @@ async def ops_costs():
 @router.get("/drift")
 async def ops_drift():
     """Get drift detection history."""
-    return drift_detector.get_drift_history()
+    return await drift_detector.get_drift_history()
 
 
 @router.get("/alerts")
@@ -76,7 +76,7 @@ async def ops_cache():
 @router.get("/scaling")
 async def ops_scaling():
     """Get scaling recommendations and conference calendar."""
-    metrics = health_monitor.collect_metrics()
+    metrics = await health_monitor.collect_metrics()
     system = metrics.get("system", {})
     return scaling_advisor.get_dashboard_data(
         cpu_percent=system.get("cpu_percent", 0),
@@ -87,7 +87,7 @@ async def ops_scaling():
 @router.get("/prompts")
 async def ops_prompts():
     """Get all prompt templates and usage stats."""
-    return {"prompts": prompt_registry.list_prompts()}
+    return {"prompts": prompt_registry.list_templates()}
 
 
 @router.get("/quality-gate")

@@ -1,18 +1,21 @@
 """Tests for MLOps — model registry, drift detection, quality gate."""
 
+import pytest
 from app.mlops.registry import model_registry
 from app.mlops.drift_detector import drift_detector
 from app.mlops.quality_gate import quality_gate
 from app.mlops.model_monitor import model_monitor
 
 
-def test_registry_list_models():
-    models = model_registry.list_models()
+@pytest.mark.asyncio
+async def test_registry_list_models():
+    models = await model_registry.list_models()
     assert isinstance(models, list)
 
 
-def test_drift_detector_get_history():
-    history = drift_detector.get_drift_history()
+@pytest.mark.asyncio
+async def test_drift_detector_get_history():
+    history = await drift_detector.get_drift_history()
     assert isinstance(history, (list, dict))
 
 

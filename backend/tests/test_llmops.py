@@ -7,13 +7,13 @@ from app.llmops.cost_tracker import cost_tracker
 
 def test_prompt_registry_loads():
     prompt_registry.load()
-    prompts = prompt_registry.list_prompts()
+    prompts = prompt_registry.list_templates()
     assert isinstance(prompts, list)
 
 
-def test_prompt_registry_get_active():
+def test_prompt_registry_get_template():
     prompt_registry.load()
-    prompt = prompt_registry.get_active("synthesis")
+    prompt = prompt_registry.get_template("synthesis")
     assert prompt is not None
 
 

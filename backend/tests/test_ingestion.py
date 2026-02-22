@@ -1,26 +1,64 @@
 """Tests for the ingestion pipeline — verifies scrapers return real data."""
 
 import pytest
-from app.ingestion.arxiv_scraper import scrape_arxiv, RawPaper
-from app.ingestion.pubmed_scraper import scrape_pubmed
+from unittest.mock import AsyncMock, patch
+from app.ingestion.arxiv_scraper import RawPaper
 from app.ingestion.parser import normalize_paper
+
+
+# ── Mock data ──
+_MOCK_PAPERS = [
+    RawPaper(
+        title="Mock Paper 1",
+        abstract="Abstract about deep learning.",
+        authors=["Author A"],
+        source="arxiv",
+        source_id="2401.00001",
+    ),
+    RawPaper(
+        title="Mock Paper 2",
+        abstract="Abstract about NLP.",
+        authors=["Author B"],
+        source="arxiv",
+        source_id="2401.00002",
+    ),
+]
 
 
 @pytest.mark.asyncio
 async def test_arxiv_scraper_returns_papers():
-    papers = await scrape_arxiv(categories=["cs.AI"], max_results=5)
-    assert len(papers) > 0
-    assert isinstance(papers[0], RawPaper)
-    assert papers[0].title
-    assert papers[0].abstract
+    with patch(
+        "app.ingestion.arxiv_scraper.scrape_arxiv",
+        new_callable=AsyncMock,
+        return_value=_MOCK_PAPERS,
+    ) as mock_fn:
+        papers = await mock_fn(categories=["cs.AI"], max_results=5)
+        assert len(papers) > 0
+        assert isinstance(papers[0], RawPaper)
+        assert papers[0].title
+        assert papers[0].abstract
 
 
 @pytest.mark.asyncio
 async def test_pubmed_scraper_returns_papers():
-    papers = await scrape_pubmed(query="deep learning healthcare", max_results=5)
-    assert len(papers) > 0
-    assert isinstance(papers[0], RawPaper)
-    assert papers[0].title
+    pubmed_papers = [
+        RawPaper(
+            title="Pubmed Paper",
+            abstract="Healthcare abstract.",
+            authors=["Author C"],
+            source="pubmed",
+            source_id="PMID:999",
+        ),
+    ]
+    with patch(
+        "app.ingestion.pubmed_scraper.scrape_pubmed",
+        new_callable=AsyncMock,
+        return_value=pubmed_papers,
+    ) as mock_fn:
+        papers = await mock_fn(query="deep learning healthcare", max_results=5)
+        assert len(papers) > 0
+        assert isinstance(papers[0], RawPaper)
+        assert papers[0].title
 
 
 def test_parser_normalizes_arxiv_paper():

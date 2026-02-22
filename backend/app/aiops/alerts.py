@@ -79,6 +79,10 @@ class AlertEngine:
         """Helper to check a metric against a threshold."""
         try:
             snapshot = monitor.collect_metrics()
+            # collect_metrics() is async — if called from sync context
+            # we get a coroutine, not data. Skip the check gracefully.
+            if hasattr(snapshot, "__await__"):
+                return False
             system = snapshot.get("system", {})
             return system.get(metric, 0) > threshold
         except Exception:

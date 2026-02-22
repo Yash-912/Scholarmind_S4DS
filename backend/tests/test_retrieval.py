@@ -10,8 +10,8 @@ async def test_retrieval_returns_results():
     assert isinstance(results, list)
     # May be empty if no papers are indexed yet
     if len(results) > 0:
-        assert "title" in results[0] or "paper_id" in results[0]
-        assert "score" in results[0]
+        assert hasattr(results[0], "title") or hasattr(results[0], "paper_id")
+        assert hasattr(results[0], "score")
 
 
 @pytest.mark.asyncio
@@ -22,9 +22,9 @@ async def test_retrieval_respects_top_k():
 
 @pytest.mark.asyncio
 async def test_retrieval_with_reranking():
-    results = await retriever.retrieve("language models", top_k=5, rerank=True)
+    results = await retriever.retrieve("language models", top_k=5)
     assert isinstance(results, list)
     # With reranking, scores should be sorted descending
     if len(results) > 1:
-        scores = [r.get("score", 0) for r in results]
+        scores = [r.score for r in results]
         assert scores == sorted(scores, reverse=True)

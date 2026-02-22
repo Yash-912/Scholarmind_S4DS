@@ -13,6 +13,19 @@ import os
 db_url = settings.db_url
 is_postgres = "postgresql" in db_url or "postgres" in db_url
 
+if is_postgres:
+    try:
+        import asyncpg  # noqa: F401 — verify driver is installed
+
+        _has_asyncpg = True
+    except ImportError:
+        print("WARNING: asyncpg not installed -- falling back to SQLite for dev mode")
+        _has_asyncpg = False
+        is_postgres = False
+        db_url = settings.SQLITE_URL
+else:
+    _has_asyncpg = False
+
 if not is_postgres:
     # Ensure data directory exists for SQLite
     db_path = db_url.replace("sqlite+aiosqlite:///", "")

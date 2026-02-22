@@ -75,6 +75,17 @@ class CostTracker:
         cutoff = datetime.now(timezone.utc) - timedelta(hours=max_hours)
         self._costs = [c for c in self._costs if c["timestamp"] > cutoff]
 
+    def get_summary(self) -> dict:
+        """Return a high-level spending summary."""
+        budget = self.check_budget()
+        breakdown = self.get_breakdown()
+        return {
+            "hourly_spend_usd": budget["hourly_spend_usd"],
+            "total_cost_usd": breakdown["total_cost_usd"],
+            "total_requests": breakdown["total_requests"],
+            "over_budget": budget["over_budget"],
+        }
+
 
 # Global singleton
 cost_tracker = CostTracker()
