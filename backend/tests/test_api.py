@@ -26,7 +26,7 @@ def test_papers_list():
 
 
 def test_search():
-    resp = client.post("/api/search", json={"query": "machine learning", "top_k": 3})
+    resp = client.get("/api/search", params={"q": "machine learning", "top_k": 3})
     assert resp.status_code == 200
 
 
