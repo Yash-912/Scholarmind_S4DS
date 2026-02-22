@@ -20,6 +20,7 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 import time
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
 from app.config import settings
 from app.db.database import init_database
@@ -119,7 +120,6 @@ app.add_middleware(
 # Latency tracking middleware
 @app.middleware("http")
 async def track_latency(request: Request, call_next):
-    import time
     from app.aiops.health_monitor import health_monitor
     from app.aiops.metrics_collector import query_latency_seconds
     from app.aiops.anomaly_detector import anomaly_detector
@@ -139,7 +139,6 @@ async def track_latency(request: Request, call_next):
     return response
 
 # Connect scheduler to proactively poll health check
-from apscheduler.schedulers.asyncio import AsyncIOScheduler
 proactive_scheduler = AsyncIOScheduler()
 @proactive_scheduler.scheduled_job("interval", minutes=1)
 async def scheduled_health_check():

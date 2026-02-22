@@ -1,6 +1,7 @@
 """Tests for LLMOps — prompt registry, routing, cost tracking."""
 
 from app.llmops.prompt_registry import prompt_registry
+import pytest
 from app.llmops.router import query_router, QueryComplexity
 from app.llmops.cost_tracker import cost_tracker
 
@@ -16,7 +17,6 @@ def test_prompt_registry_get_template():
     prompt = prompt_registry.get_template("synthesis")
     assert prompt is not None
 
-import pytest
 
 @pytest.mark.asyncio
 async def test_router_classifies_simple():

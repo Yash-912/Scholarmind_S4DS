@@ -99,7 +99,7 @@ class Synthesizer:
             model = model or decision.model
             query_type = query_type or "synthesis" # Default template
             
-        from app.aiops.metrics_collector import queries_total, llm_latency_seconds
+        from app.aiops.metrics_collector import queries_total
         queries_total.labels(query_type=query_type, cache_hit=str(False)).inc()
 
         # ═══ Step 1: Check Cache ═══

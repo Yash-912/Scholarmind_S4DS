@@ -94,7 +94,7 @@ class DriftDetector:
 
         # Use actual baseline norm stats instead of gaussian sampling
         from app.db.database import async_session
-        from sqlalchemy import text
+
         # If we had actual baseline embeddings stored, we'd use them.
         # But we only have mean/std. Let's use PCA/KMeans approach or just use L2 norms as proxy
         # Since we just want a distribution, we can approximate better by not just using L2,

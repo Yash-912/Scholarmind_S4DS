@@ -84,7 +84,8 @@ Answer:
                 import re
                 txt = resp["text"]
                 match = re.search(r'\{.*\}', txt, re.DOTALL)
-                if match: txt = match.group(0)
+                if match:
+                    txt = match.group(0)
                 data = json.loads(txt.strip())
                 return float(data.get("score", 0.5))
             except Exception:
@@ -107,7 +108,8 @@ Answer: {answer}"""
                 import re
                 txt = resp["text"]
                 match = re.search(r'\{.*\}', txt, re.DOTALL)
-                if match: txt = match.group(0)
+                if match:
+                    txt = match.group(0)
                 data = json.loads(txt.strip())
                 return float(data.get("score", 0.5))
             except Exception:
@@ -135,7 +137,8 @@ Retrieved Contexts:
                 import re
                 txt = resp["text"]
                 match = re.search(r'\{.*\}', txt, re.DOTALL)
-                if match: txt = match.group(0)
+                if match:
+                    txt = match.group(0)
                 data = json.loads(txt.strip())
                 return float(data.get("score", 0.5))
             except Exception:
