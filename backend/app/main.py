@@ -46,6 +46,17 @@ from app.api.routes import (
 )
 from app.mlops.experiment_tracker import experiment_tracker
 from app.aiops.alerts import alert_engine
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
+
+# Connect scheduler to proactively poll health check
+proactive_scheduler = AsyncIOScheduler()
+
+
+@proactive_scheduler.scheduled_job("interval", minutes=1)
+async def scheduled_health_check():
+    from app.aiops.health_monitor import health_monitor
+
+    await health_monitor.collect_metrics()
 
 
 @asynccontextmanager
@@ -87,6 +98,9 @@ async def lifespan(app: FastAPI):
     # 8. Start ingestion scheduler
     start_scheduler()
 
+    # 9. Start proactive health monitoring scheduler
+    proactive_scheduler.start()
+
     print(f"\n{'=' * 60}")
     print("✅ ScholarMind Ready — http://0.0.0.0:7860")
     print("📚 API Docs — http://0.0.0.0:7860/docs")
@@ -97,6 +111,7 @@ async def lifespan(app: FastAPI):
     # Shutdown
     print("\n🛑 ScholarMind shutting down...")
     stop_scheduler()
+    proactive_scheduler.shutdown()
 
 
 # Create FastAPI app
@@ -137,27 +152,6 @@ async def track_latency(request: Request, call_next):
 
     response.headers["X-Response-Time"] = f"{elapsed:.0f}ms"
     return response
-
-
-# Connect scheduler to proactively poll health check
-proactive_scheduler = AsyncIOScheduler()
-
-
-@proactive_scheduler.scheduled_job("interval", minutes=1)
-async def scheduled_health_check():
-    from app.aiops.health_monitor import health_monitor
-
-    await health_monitor.collect_metrics()
-
-
-@app.on_event("startup")
-async def start_proactive_monitoring():
-    proactive_scheduler.start()
-
-
-@app.on_event("shutdown")
-async def stop_proactive_monitoring():
-    proactive_scheduler.shutdown()
 
 
 # Register route modules

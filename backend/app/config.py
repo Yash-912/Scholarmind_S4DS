@@ -3,7 +3,7 @@ ScholarMind Configuration — Single source of truth for all settings.
 Uses Pydantic Settings with environment variable loading.
 """
 
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 from typing import Optional
 import os
 
@@ -94,9 +94,8 @@ class Settings(BaseSettings):
     # === CORS ===
     CORS_ORIGINS: str = "http://localhost:3000,https://scholarmind.vercel.app"
 
-    class Config:
-        # Look for .env in current dir first, then parent (project root)
-        env_file = (
+    model_config = SettingsConfigDict(
+        env_file=(
             ".env"
             if os.path.exists(".env")
             else os.path.join(
@@ -105,10 +104,11 @@ class Settings(BaseSettings):
                 ),
                 ".env",
             )
-        )
-        env_file_encoding = "utf-8"
-        case_sensitive = True
-        extra = "ignore"  # Ignore frontend vars like NEXT_PUBLIC_API_URL
+        ),
+        env_file_encoding="utf-8",
+        case_sensitive=True,
+        extra="ignore",
+    )
 
     @property
     def arxiv_categories_list(self) -> list[str]:

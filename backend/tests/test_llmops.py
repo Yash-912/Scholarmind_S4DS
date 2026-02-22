@@ -2,6 +2,7 @@
 
 from app.llmops.prompt_registry import prompt_registry
 import pytest
+from unittest.mock import patch, AsyncMock
 from app.llmops.router import query_router, QueryComplexity
 from app.llmops.cost_tracker import cost_tracker
 
@@ -19,13 +20,17 @@ def test_prompt_registry_get_template():
 
 
 @pytest.mark.asyncio
-async def test_router_classifies_simple():
+@patch("app.llmops.router.llm_gateway.generate", new_callable=AsyncMock)
+async def test_router_classifies_simple(mock_generate):
+    mock_generate.return_value = {"text": "SIMPLE"}
     decision = await query_router.route("What is attention?")
     assert decision.complexity == QueryComplexity.SIMPLE
 
 
 @pytest.mark.asyncio
-async def test_router_classifies_complex():
+@patch("app.llmops.router.llm_gateway.generate", new_callable=AsyncMock)
+async def test_router_classifies_complex(mock_generate):
+    mock_generate.return_value = {"text": "COMPLEX"}
     decision = await query_router.route(
         "Compare transformer architectures versus LSTM for long-range dependencies and gap analysis"
     )
@@ -33,7 +38,9 @@ async def test_router_classifies_complex():
 
 
 @pytest.mark.asyncio
-async def test_router_returns_model():
+@patch("app.llmops.router.llm_gateway.generate", new_callable=AsyncMock)
+async def test_router_returns_model(mock_generate):
+    mock_generate.return_value = {"text": "STANDARD"}
     decision = await query_router.route("Explain BERT")
     assert decision.model is not None
     assert decision.provider is not None
