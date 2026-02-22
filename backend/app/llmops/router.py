@@ -76,9 +76,9 @@ class QueryRouter:
         },
     }
 
-    def route(self, query: str, query_type: str | None = None) -> RoutingDecision:
+    async def route(self, query: str, query_type: str | None = None) -> RoutingDecision:
         """Classify query and return routing decision."""
-        complexity = self._classify(query, query_type)
+        complexity = await self._classify(query, query_type)
         tier = self.TIERS[complexity]
 
         estimated_tokens = self._estimate_tokens(query, complexity)
@@ -92,35 +92,20 @@ class QueryRouter:
             reasoning=self._explain(query, complexity),
         )
 
-    def _classify(self, query: str, query_type: str | None = None) -> QueryComplexity:
-        """Determine query complexity."""
-        q_lower = query.lower()
+    async def _classify(self, query: str, query_type: str | None = None) -> QueryComplexity:
+        """Determine query complexity using LLM instead of naive keywords."""
+        if query_type in ("comparison", "gap_analysis"): return QueryComplexity.COMPLEX
+        if query_type == "chat": return QueryComplexity.SIMPLE
 
-        # If explicit query type is set
-        if query_type in ("comparison", "gap_analysis"):
-            return QueryComplexity.COMPLEX
-        if query_type == "chat":
-            return QueryComplexity.SIMPLE
-
-        # Check complex signals
-        complex_score = sum(1 for s in _COMPLEX_SIGNALS if s in q_lower)
-        simple_score = sum(1 for s in _SIMPLE_SIGNALS if s in q_lower)
-
-        # Word count heuristic
-        word_count = len(query.split())
-        if word_count > 25:
-            complex_score += 1
-        if word_count < 8:
-            simple_score += 1
-
-        # Question mark count (multi-part questions are complex)
-        if query.count("?") > 1:
-            complex_score += 1
-
-        if complex_score >= 2:
-            return QueryComplexity.COMPLEX
-        if simple_score >= 2 or (simple_score > complex_score):
-            return QueryComplexity.SIMPLE
+        try:
+            from app.llmops.gateway import llm_gateway
+            prompt = f"Analyze query complexity. Return EXACTLY ONE WORD from [SIMPLE, STANDARD, COMPLEX]. Query: {query}"
+            resp = await llm_gateway.generate(prompt, model="llama-3.1-8b-instant", max_tokens=10)
+            txt = resp["text"].upper()
+            if "COMPLEX" in txt: return QueryComplexity.COMPLEX
+            if "SIMPLE" in txt: return QueryComplexity.SIMPLE
+        except Exception:
+            pass
         return QueryComplexity.STANDARD
 
     def _estimate_tokens(self, query: str, complexity: QueryComplexity) -> int:

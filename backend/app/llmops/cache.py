@@ -62,26 +62,41 @@ class SemanticCache:
         # Embed the query
         query_embedding = embedding_service.embed_query(query)
 
-        # Check similarity against all cached queries
-        best_sim = 0.0
-        best_key = None
-
-        for key, entry in self._cache.items():
-            sim = self._cosine_sim(query_embedding, entry.query_embedding)
-            if sim > best_sim:
-                best_sim = sim
-                best_key = key
+        # Vectorized check
+        if not self._cache:
+            self._misses += 1
+            return None
+            
+        keys = list(self._cache.keys())
+        embeddings = np.array([self._cache[k].query_embedding for k in keys])
+        
+        # Matrix multiplication for cosine similarity (assuming normalized embeddings)
+        # Fallback to loop if shape is weird
+        if len(embeddings.shape) == 2 and query_embedding.shape[0] == embeddings.shape[1]:
+            norms = np.linalg.norm(embeddings, axis=1) * np.linalg.norm(query_embedding)
+            sims = np.dot(embeddings, query_embedding) / np.maximum(norms, 1e-8)
+            best_idx = np.argmax(sims)
+            best_sim = sims[best_idx]
+            best_key = keys[best_idx]
+        else:
+            best_sim, best_key = 0.0, None
+            for key, entry in self._cache.items():
+                sim = self._cosine_sim(query_embedding, entry.query_embedding)
+                if sim > best_sim:
+                    best_sim, best_key = sim, key
 
         if best_sim >= self.threshold and best_key:
             self._hits += 1
             entry = self._cache[best_key]
             entry.hit_count += 1
-            # Move to end (LRU)
             self._cache.move_to_end(best_key)
-            print(f"💾 Cache HIT (sim={best_sim:.3f}): {query[:50]}...")
+            from app.aiops.metrics_collector import cache_hits_total
+            cache_hits_total.inc()
             return entry.response
 
         self._misses += 1
+        from app.aiops.metrics_collector import cache_misses_total
+        cache_misses_total.inc()
         return None
 
     def put(self, query: str, response: dict):

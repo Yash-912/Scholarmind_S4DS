@@ -77,12 +77,19 @@ Contexts:
 Answer:
 {answer}"""
 
-        try:
-            resp = await llm_gateway.generate(prompt, model="llama-3.1-8b-instant")
-            data = json.loads(resp.strip())
-            return float(data.get("score", 0.5))
-        except Exception:
-            return 0.5
+        for _ in range(3):
+            try:
+                resp = await llm_gateway.generate(prompt, model="llama-3.1-8b-instant")
+                # regex to extract json if wrapped in markdown
+                import re
+                txt = resp["text"]
+                match = re.search(r'\{.*\}', txt, re.DOTALL)
+                if match: txt = match.group(0)
+                data = json.loads(txt.strip())
+                return float(data.get("score", 0.5))
+            except Exception:
+                continue
+        return 0.5
 
     async def _score_answer_relevance(self, query: str, answer: str) -> float:
         """Score how relevant the answer is to the query."""
@@ -93,12 +100,19 @@ Question: {query}
 
 Answer: {answer}"""
 
-        try:
-            resp = await llm_gateway.generate(prompt, model="llama-3.1-8b-instant")
-            data = json.loads(resp.strip())
-            return float(data.get("score", 0.5))
-        except Exception:
-            return 0.5
+        for _ in range(3):
+            try:
+                resp = await llm_gateway.generate(prompt, model="llama-3.1-8b-instant")
+                # regex to extract json if wrapped in markdown
+                import re
+                txt = resp["text"]
+                match = re.search(r'\{.*\}', txt, re.DOTALL)
+                if match: txt = match.group(0)
+                data = json.loads(txt.strip())
+                return float(data.get("score", 0.5))
+            except Exception:
+                continue
+        return 0.5
 
     async def _score_context_relevance(self, query: str, contexts: list[str]) -> float:
         """Score how relevant the retrieved contexts are to the query."""
@@ -114,12 +128,19 @@ Question: {query}
 Retrieved Contexts:
 {context_str}"""
 
-        try:
-            resp = await llm_gateway.generate(prompt, model="llama-3.1-8b-instant")
-            data = json.loads(resp.strip())
-            return float(data.get("score", 0.5))
-        except Exception:
-            return 0.5
+        for _ in range(3):
+            try:
+                resp = await llm_gateway.generate(prompt, model="llama-3.1-8b-instant")
+                # regex to extract json if wrapped in markdown
+                import re
+                txt = resp["text"]
+                match = re.search(r'\{.*\}', txt, re.DOTALL)
+                if match: txt = match.group(0)
+                data = json.loads(txt.strip())
+                return float(data.get("score", 0.5))
+            except Exception:
+                continue
+        return 0.5
 
     def summary(self, results: list[EvalResult]) -> dict:
         """Aggregate evaluation results."""

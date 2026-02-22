@@ -123,6 +123,8 @@ async def scrape_arxiv(
             continue
 
     print(f"✅ Fetched {len(papers)} papers from arXiv")
+    from app.aiops.metrics_collector import papers_ingested_total
+    papers_ingested_total.labels(source="arxiv").inc(len(papers))
     return papers
 
 

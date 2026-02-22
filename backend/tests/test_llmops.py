@@ -16,21 +16,23 @@ def test_prompt_registry_get_template():
     prompt = prompt_registry.get_template("synthesis")
     assert prompt is not None
 
+import pytest
 
-def test_router_classifies_simple():
-    decision = query_router.route("What is attention?")
+@pytest.mark.asyncio
+async def test_router_classifies_simple():
+    decision = await query_router.route("What is attention?")
     assert decision.complexity == QueryComplexity.SIMPLE
 
-
-def test_router_classifies_complex():
-    decision = query_router.route(
+@pytest.mark.asyncio
+async def test_router_classifies_complex():
+    decision = await query_router.route(
         "Compare transformer architectures versus LSTM for long-range dependencies and gap analysis"
     )
     assert decision.complexity == QueryComplexity.COMPLEX
 
-
-def test_router_returns_model():
-    decision = query_router.route("Explain BERT")
+@pytest.mark.asyncio
+async def test_router_returns_model():
+    decision = await query_router.route("Explain BERT")
     assert decision.model is not None
     assert decision.provider is not None
 

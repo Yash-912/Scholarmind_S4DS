@@ -92,9 +92,15 @@ class Synthesizer:
         start_time = time.time()
         top_k = top_k or settings.MAX_RETRIEVAL_RESULTS
 
-        # Auto-classify query type
-        if not query_type:
-            query_type = self._classify_query(query)
+        # Auto-classify query type and select model from router
+        if not model or not query_type:
+            from app.llmops.router import query_router
+            decision = await query_router.route(query, query_type)
+            model = model or decision.model
+            query_type = query_type or "synthesis" # Default template
+            
+        from app.aiops.metrics_collector import queries_total, llm_latency_seconds
+        queries_total.labels(query_type=query_type, cache_hit=str(False)).inc()
 
         # ═══ Step 1: Check Cache ═══
         if use_cache:
