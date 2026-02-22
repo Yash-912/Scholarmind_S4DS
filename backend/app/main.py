@@ -46,7 +46,7 @@ from app.api.routes import (
 )
 from app.mlops.experiment_tracker import experiment_tracker
 from app.aiops.alerts import alert_engine
-from apscheduler.schedulers.asyncio import AsyncIOScheduler
+
 
 # Connect scheduler to proactively poll health check
 proactive_scheduler = AsyncIOScheduler()
