@@ -66,13 +66,16 @@ class SemanticCache:
         if not self._cache:
             self._misses += 1
             return None
-            
+
         keys = list(self._cache.keys())
         embeddings = np.array([self._cache[k].query_embedding for k in keys])
-        
+
         # Matrix multiplication for cosine similarity (assuming normalized embeddings)
         # Fallback to loop if shape is weird
-        if len(embeddings.shape) == 2 and query_embedding.shape[0] == embeddings.shape[1]:
+        if (
+            len(embeddings.shape) == 2
+            and query_embedding.shape[0] == embeddings.shape[1]
+        ):
             norms = np.linalg.norm(embeddings, axis=1) * np.linalg.norm(query_embedding)
             sims = np.dot(embeddings, query_embedding) / np.maximum(norms, 1e-8)
             best_idx = np.argmax(sims)
@@ -91,11 +94,13 @@ class SemanticCache:
             entry.hit_count += 1
             self._cache.move_to_end(best_key)
             from app.aiops.metrics_collector import cache_hits_total
+
             cache_hits_total.inc()
             return entry.response
 
         self._misses += 1
         from app.aiops.metrics_collector import cache_misses_total
+
         cache_misses_total.inc()
         return None
 

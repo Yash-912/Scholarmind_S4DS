@@ -92,7 +92,9 @@ class QueryRouter:
             reasoning=self._explain(query, complexity),
         )
 
-    async def _classify(self, query: str, query_type: str | None = None) -> QueryComplexity:
+    async def _classify(
+        self, query: str, query_type: str | None = None
+    ) -> QueryComplexity:
         """Determine query complexity using LLM instead of naive keywords."""
         if query_type in ("comparison", "gap_analysis"):
             return QueryComplexity.COMPLEX
@@ -101,8 +103,11 @@ class QueryRouter:
 
         try:
             from app.llmops.gateway import llm_gateway
+
             prompt = f"Analyze query complexity. Return EXACTLY ONE WORD from [SIMPLE, STANDARD, COMPLEX]. Query: {query}"
-            resp = await llm_gateway.generate(prompt, model="llama-3.1-8b-instant", max_tokens=10)
+            resp = await llm_gateway.generate(
+                prompt, model="llama-3.1-8b-instant", max_tokens=10
+            )
             txt = resp["text"].upper()
             if "COMPLEX" in txt:
                 return QueryComplexity.COMPLEX

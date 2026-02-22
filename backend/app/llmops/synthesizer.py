@@ -95,11 +95,13 @@ class Synthesizer:
         # Auto-classify query type and select model from router
         if not model or not query_type:
             from app.llmops.router import query_router
+
             decision = await query_router.route(query, query_type)
             model = model or decision.model
-            query_type = query_type or "synthesis" # Default template
-            
+            query_type = query_type or "synthesis"  # Default template
+
         from app.aiops.metrics_collector import queries_total
+
         queries_total.labels(query_type=query_type, cache_hit=str(False)).inc()
 
         # ═══ Step 1: Check Cache ═══

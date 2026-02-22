@@ -123,36 +123,41 @@ async def track_latency(request: Request, call_next):
     from app.aiops.health_monitor import health_monitor
     from app.aiops.metrics_collector import query_latency_seconds
     from app.aiops.anomaly_detector import anomaly_detector
-    
+
     start = time.time()
     response = await call_next(request)
     elapsed = (time.time() - start) * 1000
-    
+
     # Record stage-level tracking
     health_monitor.record_latency(request.url.path, elapsed)
-    
+
     # Wire Prometheus Metrics & Anomaly Detector
     query_latency_seconds.labels(endpoint=request.url.path).observe(elapsed / 1000.0)
     anomaly_detector.record(f"latency_{request.url.path.replace('/', '_')}", elapsed)
-    
+
     response.headers["X-Response-Time"] = f"{elapsed:.0f}ms"
     return response
 
+
 # Connect scheduler to proactively poll health check
 proactive_scheduler = AsyncIOScheduler()
+
+
 @proactive_scheduler.scheduled_job("interval", minutes=1)
 async def scheduled_health_check():
     from app.aiops.health_monitor import health_monitor
+
     await health_monitor.collect_metrics()
-    
+
+
 @app.on_event("startup")
 async def start_proactive_monitoring():
     proactive_scheduler.start()
 
+
 @app.on_event("shutdown")
 async def stop_proactive_monitoring():
     proactive_scheduler.shutdown()
-
 
 
 # Register route modules

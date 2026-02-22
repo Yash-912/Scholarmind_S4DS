@@ -82,8 +82,9 @@ Answer:
                 resp = await llm_gateway.generate(prompt, model="llama-3.1-8b-instant")
                 # regex to extract json if wrapped in markdown
                 import re
+
                 txt = resp["text"]
-                match = re.search(r'\{.*\}', txt, re.DOTALL)
+                match = re.search(r"\{.*\}", txt, re.DOTALL)
                 if match:
                     txt = match.group(0)
                 data = json.loads(txt.strip())
@@ -106,8 +107,9 @@ Answer: {answer}"""
                 resp = await llm_gateway.generate(prompt, model="llama-3.1-8b-instant")
                 # regex to extract json if wrapped in markdown
                 import re
+
                 txt = resp["text"]
-                match = re.search(r'\{.*\}', txt, re.DOTALL)
+                match = re.search(r"\{.*\}", txt, re.DOTALL)
                 if match:
                     txt = match.group(0)
                 data = json.loads(txt.strip())
@@ -135,8 +137,9 @@ Retrieved Contexts:
                 resp = await llm_gateway.generate(prompt, model="llama-3.1-8b-instant")
                 # regex to extract json if wrapped in markdown
                 import re
+
                 txt = resp["text"]
-                match = re.search(r'\{.*\}', txt, re.DOTALL)
+                match = re.search(r"\{.*\}", txt, re.DOTALL)
                 if match:
                     txt = match.group(0)
                 data = json.loads(txt.strip())

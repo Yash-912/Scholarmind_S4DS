@@ -95,6 +95,7 @@ class LLMGateway:
 
             # Prometheus metric
             from app.aiops.metrics_collector import llm_calls_total
+
             llm_calls_total.labels(model=model, provider="groq", status="success").inc()
 
             # Calculate cost
@@ -123,31 +124,52 @@ class LLMGateway:
             print(f"❌ LLM generation failed ({model}): {e}")
 
             from app.aiops.metrics_collector import llm_calls_total
+
             llm_calls_total.labels(model=model, provider="groq", status="error").inc()
 
             # HuggingFace Serverless Inference Fallback
             if settings.HF_TOKEN:
                 print("♻️ Failing over to HuggingFace Inference API")
                 import httpx
+
                 hf_url = "https://api-inference.huggingface.co/models/meta-llama/Meta-Llama-3-8B-Instruct"
                 headers = {"Authorization": f"Bearer {settings.HF_TOKEN}"}
-                payload = {"inputs": prompt, "parameters": {"max_new_tokens": max_tokens, "temperature": temperature}}
+                payload = {
+                    "inputs": prompt,
+                    "parameters": {
+                        "max_new_tokens": max_tokens,
+                        "temperature": temperature,
+                    },
+                }
                 try:
                     async with httpx.AsyncClient() as client:
-                        hf_resp = await client.post(hf_url, headers=headers, json=payload, timeout=15.0)
+                        hf_resp = await client.post(
+                            hf_url, headers=headers, json=payload, timeout=15.0
+                        )
                         hf_resp.raise_for_status()
                         hf_data = hf_resp.json()
                         text = hf_data[0].get("generated_text", "")
                         if text.startswith(prompt):
-                            text = text[len(prompt):].strip()
-                        
-                        llm_calls_total.labels(model="Meta-Llama-3-8B-Instruct", provider="hf", status="success").inc()
+                            text = text[len(prompt) :].strip()
+
+                        llm_calls_total.labels(
+                            model="Meta-Llama-3-8B-Instruct",
+                            provider="hf",
+                            status="success",
+                        ).inc()
                         return {
-                            "text": text, "model": "Meta-Llama-3-8B-Instruct", "provider": "huggingface",
-                            "input_tokens": 0, "output_tokens": 0, "cost_usd": 0.0, "latency_ms": elapsed
+                            "text": text,
+                            "model": "Meta-Llama-3-8B-Instruct",
+                            "provider": "huggingface",
+                            "input_tokens": 0,
+                            "output_tokens": 0,
+                            "cost_usd": 0.0,
+                            "latency_ms": elapsed,
                         }
                 except Exception as hf_err:
-                    llm_calls_total.labels(model="Meta-Llama-3-8B-Instruct", provider="hf", status="error").inc()
+                    llm_calls_total.labels(
+                        model="Meta-Llama-3-8B-Instruct", provider="hf", status="error"
+                    ).inc()
                     print(f"❌ HuggingFace fallback also failed. {hf_err}")
 
             raise

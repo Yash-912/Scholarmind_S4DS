@@ -23,12 +23,14 @@ async def test_router_classifies_simple():
     decision = await query_router.route("What is attention?")
     assert decision.complexity == QueryComplexity.SIMPLE
 
+
 @pytest.mark.asyncio
 async def test_router_classifies_complex():
     decision = await query_router.route(
         "Compare transformer architectures versus LSTM for long-range dependencies and gap analysis"
     )
     assert decision.complexity == QueryComplexity.COMPLEX
+
 
 @pytest.mark.asyncio
 async def test_router_returns_model():

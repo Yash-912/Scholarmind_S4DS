@@ -27,7 +27,9 @@ class DriftDetector:
         self._baseline_std = np.std(embeddings, axis=0)
         # Store actual embeddings for true distribution testing
         np.random.seed(42)
-        indices = np.random.choice(len(embeddings), min(300, len(embeddings)), replace=False)
+        indices = np.random.choice(
+            len(embeddings), min(300, len(embeddings)), replace=False
+        )
         self._baseline_sample = embeddings[indices]
         self._baseline_set = True
         print(f"✅ Drift baseline set from {len(embeddings)} embeddings")
@@ -100,12 +102,15 @@ class DriftDetector:
         # Since we just want a distribution, we can approximate better by not just using L2,
         # but returning a pseudo-PSI over major dimensions
         # Compute Euclidean distance (L2 norm) using the actual baseline sample, not gaussian randoms
-        if hasattr(self, '_baseline_sample'):
+        if hasattr(self, "_baseline_sample"):
             baseline_norms = np.linalg.norm(self._baseline_sample, axis=1)
         else:
             baseline_norms = np.linalg.norm(
                 np.random.randn(max(len(new_embeddings), 50), new_embeddings.shape[1])
-                * self._baseline_std + self._baseline_mean, axis=1)
+                * self._baseline_std
+                + self._baseline_mean,
+                axis=1,
+            )
 
         new_norms = np.linalg.norm(new_embeddings, axis=1)
         psi = self.compute_psi(baseline_norms, new_norms)
