@@ -44,6 +44,44 @@ class HybridRetriever:
         self._bm25_index = None
         self._bm25_built = False
 
+    async def seed_bm25_from_store(self):
+        """Populate BM25 index from vector store on startup."""
+        try:
+            from app.db.database import async_session
+            from sqlalchemy import text
+
+            if not vector_store._initialized:
+                await vector_store.initialize()
+
+            if vector_store.is_pg:
+                async with async_session() as session:
+                    res = await session.execute(
+                        text(
+                            f"SELECT id, document FROM {vector_store.collection_name} LIMIT 5000"
+                        )
+                    )
+                    rows = res.fetchall()
+                    if rows:
+                        ids = [r[0] for r in rows]
+                        docs = [r[1] or "" for r in rows]
+                        self.build_bm25_index(ids, docs)
+                        print(f"📊 BM25 seeded from PgVector: {len(ids)} documents")
+            else:
+                # ChromaDB path
+                if vector_store.collection:
+                    import asyncio
+
+                    all_data = await asyncio.to_thread(
+                        vector_store.collection.get, include=["documents"]
+                    )
+                    if all_data and all_data.get("ids"):
+                        self.build_bm25_index(all_data["ids"], all_data["documents"])
+                        print(
+                            f"📊 BM25 seeded from ChromaDB: {len(all_data['ids'])} documents"
+                        )
+        except Exception as e:
+            print(f"⚠️ BM25 seeding skipped (non-fatal): {e}")
+
     def build_bm25_index(self, paper_ids: list[str], texts: list[str]):
         """Build the BM25 index from paper texts."""
         start = time.time()
@@ -83,92 +121,92 @@ class HybridRetriever:
     ) -> list[RetrievedPaper]:
         """
         Hybrid retrieval with RRF fusion.
-
-        Args:
-            query: Search query
-            top_k: Final number of results
-            dense_top_k: Dense retrieval candidates
-            sparse_top_k: Sparse retrieval candidates
-            use_bm25: Whether to include BM25 results
-
-        Returns:
-            List of RetrievedPaper sorted by fused score
+        Returns empty list (never raises) so callers get graceful empty results.
         """
         start = time.time()
+        try:
+            # 1. Dense retrieval
+            query_embedding = embedding_service.embed_query(query)
+            dense_results = await vector_store.search(
+                query_embedding, top_k=dense_top_k
+            )
 
-        # 1. Dense retrieval
-        query_embedding = embedding_service.embed_query(query)
-        dense_results = await vector_store.search(query_embedding, top_k=dense_top_k)
+            dense_ranked = []
+            if dense_results and dense_results["ids"] and dense_results["ids"][0]:
+                for i, doc_id in enumerate(dense_results["ids"][0]):
+                    distance = (
+                        dense_results["distances"][0][i]
+                        if dense_results["distances"]
+                        else 0
+                    )
+                    score = 1 - distance  # Convert distance to similarity
+                    dense_ranked.append((doc_id, score))
 
-        dense_ranked = []
-        if dense_results and dense_results["ids"] and dense_results["ids"][0]:
-            for i, doc_id in enumerate(dense_results["ids"][0]):
-                distance = (
-                    dense_results["distances"][0][i]
-                    if dense_results["distances"]
-                    else 0
+            # 2. Sparse retrieval (BM25)
+            sparse_ranked = []
+            if use_bm25 and self._bm25_built:
+                sparse_ranked = self._sparse_search(query, top_k=sparse_top_k)
+
+            # 3. Reciprocal Rank Fusion
+            fused_scores = {}
+
+            for rank, (doc_id, _) in enumerate(dense_ranked):
+                fused_scores[doc_id] = fused_scores.get(doc_id, 0) + 1.0 / (
+                    self.rrf_k + rank + 1
                 )
-                score = 1 - distance  # Convert distance to similarity
-                dense_ranked.append((doc_id, score))
 
-        # 2. Sparse retrieval (BM25)
-        sparse_ranked = []
-        if use_bm25 and self._bm25_built:
-            sparse_ranked = self._sparse_search(query, top_k=sparse_top_k)
-
-        # 3. Reciprocal Rank Fusion
-        fused_scores = {}
-
-        for rank, (doc_id, _) in enumerate(dense_ranked):
-            fused_scores[doc_id] = fused_scores.get(doc_id, 0) + 1.0 / (
-                self.rrf_k + rank + 1
-            )
-
-        for rank, (doc_id, _) in enumerate(sparse_ranked):
-            fused_scores[doc_id] = fused_scores.get(doc_id, 0) + 1.0 / (
-                self.rrf_k + rank + 1
-            )
-
-        # Sort by fused score
-        sorted_ids = sorted(fused_scores.items(), key=lambda x: x[1], reverse=True)[
-            :top_k
-        ]
-
-        # Build result objects
-        results = []
-        # Create lookup from dense results
-        dense_lookup = {}
-        if dense_results and dense_results["ids"] and dense_results["ids"][0]:
-            for i, doc_id in enumerate(dense_results["ids"][0]):
-                dense_lookup[doc_id] = {
-                    "document": dense_results["documents"][0][i]
-                    if dense_results["documents"]
-                    else "",
-                    "metadata": dense_results["metadatas"][0][i]
-                    if dense_results["metadatas"]
-                    else {},
-                }
-
-        for doc_id, score in sorted_ids:
-            info = dense_lookup.get(doc_id, {})
-            metadata = info.get("metadata", {})
-            results.append(
-                RetrievedPaper(
-                    paper_id=doc_id,
-                    title=metadata.get("title", ""),
-                    text=info.get("document", ""),
-                    score=score,
-                    source=metadata.get("source", ""),
-                    metadata=metadata,
+            for rank, (doc_id, _) in enumerate(sparse_ranked):
+                fused_scores[doc_id] = fused_scores.get(doc_id, 0) + 1.0 / (
+                    self.rrf_k + rank + 1
                 )
+
+            # Sort by fused score
+            sorted_ids = sorted(fused_scores.items(), key=lambda x: x[1], reverse=True)[
+                :top_k
+            ]
+
+            # Build result objects
+            results = []
+            # Create lookup from dense results
+            dense_lookup = {}
+            if dense_results and dense_results["ids"] and dense_results["ids"][0]:
+                for i, doc_id in enumerate(dense_results["ids"][0]):
+                    dense_lookup[doc_id] = {
+                        "document": dense_results["documents"][0][i]
+                        if dense_results["documents"]
+                        else "",
+                        "metadata": dense_results["metadatas"][0][i]
+                        if dense_results["metadatas"]
+                        else {},
+                    }
+
+            for doc_id, score in sorted_ids:
+                info = dense_lookup.get(doc_id, {})
+                meta = info.get("metadata", {})
+                # metadata may already be a dict (PgVector JSONB) or need no conversion
+                if not isinstance(meta, dict):
+                    meta = {}
+                results.append(
+                    RetrievedPaper(
+                        paper_id=doc_id,
+                        title=meta.get("title", ""),
+                        text=info.get("document", ""),
+                        score=score,
+                        source=meta.get("source", ""),
+                        metadata=meta,
+                    )
+                )
+
+            elapsed = time.time() - start
+            print(
+                f"🔍 Hybrid retrieval: {len(results)} results in {elapsed * 1000:.0f}ms "
+                f"(dense={len(dense_ranked)}, sparse={len(sparse_ranked)})"
             )
+            return results
 
-        elapsed = time.time() - start
-        print(
-            f"🔍 Hybrid retrieval: {len(results)} results in {elapsed * 1000:.0f}ms (dense={len(dense_ranked)}, sparse={len(sparse_ranked)})"
-        )
-
-        return results
+        except Exception as e:
+            print(f"❌ Retriever error (returning empty): {e}")
+            return []
 
 
 # Global singleton

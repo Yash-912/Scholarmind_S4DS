@@ -25,6 +25,7 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from app.config import settings
 from app.db.database import init_database
 from app.core.vector_store import vector_store
+from app.core.retriever import retriever
 from app.llmops.gateway import llm_gateway
 from app.llmops.prompt_registry import prompt_registry
 from app.ingestion.scheduler import start_scheduler, stop_scheduler
@@ -76,6 +77,9 @@ async def lifespan(app: FastAPI):
 
     # 3. Initialize vector store
     await vector_store.initialize()
+
+    # 3b. Seed BM25 sparse index from existing vectors (non-fatal if empty)
+    await retriever.seed_bm25_from_store()
 
     # 4. Initialize LLM gateway
     llm_gateway.initialize()
