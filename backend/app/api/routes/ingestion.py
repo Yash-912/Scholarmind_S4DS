@@ -87,3 +87,77 @@ async def ingestion_stats(
     """Get ingestion statistics over the last N days."""
     stats = await crud.get_ingestion_stats(db, days)
     return stats
+
+
+@router.post("/reembed")
+async def reembed_existing_papers(
+    batch_size: int = Query(50, ge=1, le=200),
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    Re-generate embeddings for ALL existing papers in the DB and store
+    them in the PgVector table (paper_embeddings).
+
+    Use this once after migrating from ChromaDB to PgVector, or whenever
+    the vector store is out of sync with the papers table.
+    """
+    from sqlalchemy import select
+    from app.db.models import Paper
+    from app.core.embeddings import embedding_service
+    from app.core.vector_store import vector_store
+
+    if not vector_store._initialized:
+        await vector_store.initialize()
+
+    # Make sure embedding model is loaded
+    embedding_service.load()
+
+    result = await db.execute(select(Paper).order_by(Paper.id))
+    all_papers = result.scalars().all()
+
+    total = len(all_papers)
+    embedded = 0
+    failed = 0
+
+    for i in range(0, total, batch_size):
+        batch = all_papers[i : i + batch_size]
+        try:
+            texts = [
+                embedding_service.format_paper_text(p.title, p.abstract or "")
+                for p in batch
+            ]
+            embeddings = embedding_service.embed_texts(texts)
+            ids = [str(p.id) for p in batch]
+            metadatas = [
+                {
+                    "paper_id": p.id,
+                    "source": p.source or "",
+                    "source_id": p.source_id or "",
+                    "title": (p.title or "")[:500],
+                    "published_date": p.published_date.isoformat()
+                    if p.published_date
+                    else "",
+                    "categories": ",".join(p.categories[:5]) if p.categories else "",
+                }
+                for p in batch
+            ]
+            await vector_store.add_papers(
+                ids=ids,
+                embeddings=embeddings,
+                documents=texts,
+                metadatas=metadatas,
+            )
+            embedded += len(batch)
+        except Exception as e:
+            failed += len(batch)
+            print(f"⚠️ Batch {i}-{i + batch_size} failed: {e}")
+            continue
+
+    final_count = await vector_store.count()
+    return {
+        "message": "Re-embedding complete",
+        "total_papers": total,
+        "embedded": embedded,
+        "failed": failed,
+        "vectors_in_store": final_count,
+    }

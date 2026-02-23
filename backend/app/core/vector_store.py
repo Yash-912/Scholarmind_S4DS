@@ -17,7 +17,9 @@ import time
 class VectorStore:
     """Hybrid Vector Store supporting PgVector (Production) and ChromaDB (Local Dev)."""
 
-    def __init__(self, persist_dir: str = None, collection_name: str = "papers"):
+    def __init__(
+        self, persist_dir: str = None, collection_name: str = "paper_embeddings"
+    ):
         self.persist_dir = persist_dir or settings.CHROMA_PERSIST_DIR
         self.collection_name = collection_name
         self._initialized = False
